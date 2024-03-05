@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 
 internal sealed class ProfileDbCommand : DbCommand
 {
-    private readonly IDataProfiler profiler;
+    private readonly IProfileExporter exporter;
 
     private readonly DbCommand cmd;
 
@@ -66,9 +66,9 @@ internal sealed class ProfileDbCommand : DbCommand
         set => tx = value;
     }
 
-    public ProfileDbCommand(IDataProfiler profiler, ProfileDbConnection con, DbCommand cmd)
+    public ProfileDbCommand(IProfileExporter exporter, ProfileDbConnection con, DbCommand cmd)
     {
-        this.profiler = profiler;
+        this.exporter = exporter;
         this.con = con;
         this.cmd = cmd;
 
@@ -89,7 +89,7 @@ internal sealed class ProfileDbCommand : DbCommand
 
     public override int ExecuteNonQuery()
     {
-        profiler.OnExecuteStart(this);
+        exporter.OnExecuteStart(this);
         var start = ProfileHelper.GetTimeStamp();
         try
         {
@@ -97,18 +97,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            profiler.OnError(this, e);
+            exporter.OnError(this, e);
             throw;
         }
         finally
         {
-            profiler.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
         }
     }
 
     public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
     {
-        profiler.OnExecuteStart(this);
+        exporter.OnExecuteStart(this);
         var start = ProfileHelper.GetTimeStamp();
         try
         {
@@ -116,18 +116,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            profiler.OnError(this, e);
+            exporter.OnError(this, e);
             throw;
         }
         finally
         {
-            profiler.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
         }
     }
 
     public override object? ExecuteScalar()
     {
-        profiler.OnExecuteStart(this);
+        exporter.OnExecuteStart(this);
         var start = ProfileHelper.GetTimeStamp();
         try
         {
@@ -135,18 +135,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            profiler.OnError(this, e);
+            exporter.OnError(this, e);
             throw;
         }
         finally
         {
-            profiler.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
         }
     }
 
     public override async Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
     {
-        profiler.OnExecuteStart(this);
+        exporter.OnExecuteStart(this);
         var start = ProfileHelper.GetTimeStamp();
         try
         {
@@ -154,18 +154,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            profiler.OnError(this, e);
+            exporter.OnError(this, e);
             throw;
         }
         finally
         {
-            profiler.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
         }
     }
 
     protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
     {
-        profiler.OnExecuteStart(this);
+        exporter.OnExecuteStart(this);
         var start = ProfileHelper.GetTimeStamp();
         try
         {
@@ -174,18 +174,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            profiler.OnError(this, e);
+            exporter.OnError(this, e);
             throw;
         }
         finally
         {
-            profiler.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
         }
     }
 
     protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
     {
-        profiler.OnExecuteStart(this);
+        exporter.OnExecuteStart(this);
         var start = ProfileHelper.GetTimeStamp();
         try
         {
@@ -194,12 +194,12 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            profiler.OnError(this, e);
+            exporter.OnError(this, e);
             throw;
         }
         finally
         {
-            profiler.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
         }
     }
 

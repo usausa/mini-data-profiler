@@ -2,7 +2,7 @@ namespace MiniDataProfiler;
 
 using System.Data.Common;
 
-public interface IDataProfiler
+public interface IProfileExporter
 {
     void OnExecuteStart(DbCommand command);
 
