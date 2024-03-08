@@ -19,7 +19,7 @@ public sealed class ChainExporter : IProfileExporter
         }
     }
 
-    public void OnExecuteFinally(DbCommand command, long elapsed)
+    public void OnExecuteFinally(DbCommand command, TimeSpan elapsed)
     {
         foreach (var exporter in exporters)
         {
