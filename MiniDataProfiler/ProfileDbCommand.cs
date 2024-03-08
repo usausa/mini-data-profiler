@@ -2,6 +2,7 @@ namespace MiniDataProfiler;
 
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 internal sealed class ProfileDbCommand : DbCommand
@@ -90,7 +91,7 @@ internal sealed class ProfileDbCommand : DbCommand
     public override int ExecuteNonQuery()
     {
         exporter.OnExecuteStart(this);
-        var start = ProfileHelper.GetTimeStamp();
+        var start = Stopwatch.GetTimestamp();
         try
         {
             return cmd.ExecuteNonQuery();
@@ -102,14 +103,14 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
     {
         exporter.OnExecuteStart(this);
-        var start = ProfileHelper.GetTimeStamp();
+        var start = Stopwatch.GetTimestamp();
         try
         {
             return await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
@@ -121,14 +122,14 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     public override object? ExecuteScalar()
     {
         exporter.OnExecuteStart(this);
-        var start = ProfileHelper.GetTimeStamp();
+        var start = Stopwatch.GetTimestamp();
         try
         {
             return cmd.ExecuteScalar();
@@ -140,14 +141,14 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     public override async Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
     {
         exporter.OnExecuteStart(this);
-        var start = ProfileHelper.GetTimeStamp();
+        var start = Stopwatch.GetTimestamp();
         try
         {
             return await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
@@ -159,14 +160,14 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
     {
         exporter.OnExecuteStart(this);
-        var start = ProfileHelper.GetTimeStamp();
+        var start = Stopwatch.GetTimestamp();
         try
         {
             // TODO reader
@@ -179,14 +180,14 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
     {
         exporter.OnExecuteStart(this);
-        var start = ProfileHelper.GetTimeStamp();
+        var start = Stopwatch.GetTimestamp();
         try
         {
             // TODO reader
@@ -199,7 +200,7 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            exporter.OnExecuteFinally(this, ProfileHelper.GetElapsed(start));
+            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
         }
     }
 

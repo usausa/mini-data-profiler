@@ -36,14 +36,14 @@ public sealed class LoggingExporter : IProfileExporter
         log.InfoExecute(command.CommandText, MakeParameterText(command));
     }
 
-    public void OnExecuteFinally(DbCommand command, long elapsed)
+    public void OnExecuteFinally(DbCommand command, TimeSpan elapsed)
     {
         if (!option.OutputFinallyLog)
         {
             return;
         }
 
-        log.InfoExecuted(elapsed, command.CommandText, MakeParameterText(command));
+        log.InfoExecuted((long)elapsed.TotalMilliseconds, command.CommandText, MakeParameterText(command));
     }
 
     public void OnError(DbCommand command, Exception ex)

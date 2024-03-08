@@ -6,7 +6,7 @@ public interface IProfileExporter
 {
     void OnExecuteStart(DbCommand command);
 
-    void OnExecuteFinally(DbCommand command, long elapsed);
+    void OnExecuteFinally(DbCommand command, TimeSpan elapsed);
 
     void OnError(DbCommand command, Exception ex);
 }
