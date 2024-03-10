@@ -27,7 +27,7 @@ if (File.Exists(fileName))
     File.Delete(fileName);
 }
 
-// Create exporter
+// Setup Logger
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
     builder
@@ -36,7 +36,7 @@ using var loggerFactory = LoggerFactory.Create(builder =>
 });
 var logExporter = new LoggingExporter(loggerFactory.CreateLogger<LoggingExporter>(), new LoggingExporterOption());
 
-// Open telemetry
+// Setup OpenTelemetry
 using var exampleSource = new ActivitySource("Example");
 using var tracerProvider = Sdk.CreateTracerProviderBuilder()
     .ConfigureResource(config =>
