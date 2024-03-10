@@ -11,27 +11,54 @@ public sealed class ChainExporter : IProfileExporter
         this.exporters = exporters;
     }
 
-    public void OnExecuteStart(DbCommand command)
+    public void OnExecuteStart(EventType eventType, DbCommand command)
     {
         foreach (var exporter in exporters)
         {
-            exporter.OnExecuteStart(command);
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                exporter.OnExecuteStart(eventType, command);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
         }
     }
 
-    public void OnExecuteFinally(DbCommand command, TimeSpan elapsed)
+    public void OnExecuteFinally(EventType eventType, DbCommand command, TimeSpan elapsed)
     {
         foreach (var exporter in exporters)
         {
-            exporter.OnExecuteFinally(command, elapsed);
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                exporter.OnExecuteFinally(eventType, command, elapsed);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
         }
     }
 
-    public void OnError(DbCommand command, Exception ex)
+    public void OnError(EventType eventType, DbCommand command, Exception ex)
     {
+        // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
         foreach (var exporter in exporters)
         {
-            exporter.OnError(command, ex);
+            try
+            {
+                exporter.OnError(eventType, command, ex);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Data.Common;
 
 public interface IProfileExporter
 {
-    void OnExecuteStart(DbCommand command);
+    void OnExecuteStart(EventType eventType, DbCommand command);
 
-    void OnExecuteFinally(DbCommand command, TimeSpan elapsed);
+    void OnExecuteFinally(EventType eventType, DbCommand command, TimeSpan elapsed);
 
-    void OnError(DbCommand command, Exception ex);
+    void OnError(EventType eventType, DbCommand command, Exception ex);
 }

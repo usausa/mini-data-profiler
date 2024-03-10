@@ -10,11 +10,14 @@
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="OpenTelemetry" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
     <PackageReference Include="Usa.Smart.Data.Accessor" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MiniDataProfiler.Exporter.Logging\MiniDataProfiler.Exporter.Logging.csproj" />
+    <ProjectReference Include="..\MiniDataProfiler.Exporter.OpenTelemetry\MiniDataProfiler.Exporter.OpenTelemetry.csproj" />
     <ProjectReference Include="..\MiniDataProfiler\MiniDataProfiler.csproj" />
   </ItemGroup>
 

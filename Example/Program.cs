@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 using Example.Accessor;
 using Example.Models;
 
@@ -6,6 +8,11 @@ using Microsoft.Extensions.Logging;
 
 using MiniDataProfiler;
 using MiniDataProfiler.Exporter.Logging;
+using MiniDataProfiler.Exporter.OpenTelemetry;
+
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 using Smart.Data;
 using Smart.Data.Accessor;
@@ -27,7 +34,25 @@ using var loggerFactory = LoggerFactory.Create(builder =>
         .AddFilter("MiniDataProfiler.Exporter.Logging", LogLevel.Information)
         .AddConsole();
 });
-var exporter = new LoggingExporter(loggerFactory.CreateLogger<LoggingExporter>(), new LoggingExporterOption());
+var logExporter = new LoggingExporter(loggerFactory.CreateLogger<LoggingExporter>(), new LoggingExporterOption());
+
+// Open telemetry
+using var exampleSource = new ActivitySource("Example");
+using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+    .ConfigureResource(config =>
+    {
+        config.AddService("Example", serviceInstanceId: Environment.MachineName);
+    })
+    .AddSource("Example")
+    .AddMiniDataProfilerInstrumentation()
+    .AddOtlpExporter(config =>
+    {
+        config.Endpoint = new Uri("http://otlp-exporter:4317");
+    })
+    .Build();
+
+// Exporters
+var exporter = new ChainExporter(logExporter, new OpenTelemetryExporter(new OpenTelemetryExporterOption()));
 
 // Create accessor
 var engine = new ExecuteEngineConfig()
@@ -41,6 +66,9 @@ var factory = new DataAccessorFactory(engine);
 var accessor = factory.Create<IExampleAccessor>();
 
 // Operation
+// ReSharper disable once ExplicitCallerInfoArgument
+using var activity = exampleSource.StartActivity("Operation");
+
 accessor.Create();
 
 accessor.Insert(new DataEntity { Id = 1L, Name = "Data-1", Type = "A" });

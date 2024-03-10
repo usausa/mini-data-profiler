@@ -12,6 +12,8 @@ public sealed class LoggingExporterOption
     public bool OutputFinallyLog { get; set; } = true;
 
     public bool OutputExceptionLog { get; set; }
+
+    public bool OutputParameter { get; set; } = true;
 }
 
 public sealed class LoggingExporter : IProfileExporter
@@ -26,34 +28,55 @@ public sealed class LoggingExporter : IProfileExporter
         this.option = option;
     }
 
-    public void OnExecuteStart(DbCommand command)
+    public void OnExecuteStart(EventType eventType, DbCommand command)
     {
         if (!option.OutputStartLog)
         {
             return;
         }
 
-        log.InfoExecute(command.CommandText, MakeParameterText(command));
+        if (option.OutputParameter)
+        {
+            log.InfoExecuteWithParameter(eventType.AsString(), command.CommandText, MakeParameterText(command));
+        }
+        else
+        {
+            log.InfoExecute(eventType.AsString(), command.CommandText);
+        }
     }
 
-    public void OnExecuteFinally(DbCommand command, TimeSpan elapsed)
+    public void OnExecuteFinally(EventType eventType, DbCommand command, TimeSpan elapsed)
     {
         if (!option.OutputFinallyLog)
         {
             return;
         }
 
-        log.InfoExecuted((long)elapsed.TotalMilliseconds, command.CommandText, MakeParameterText(command));
+        if (option.OutputParameter)
+        {
+            log.InfoExecutedWithParameter((long)elapsed.TotalMilliseconds, eventType.AsString(), command.CommandText, MakeParameterText(command));
+        }
+        else
+        {
+            log.InfoExecuted((long)elapsed.TotalMilliseconds, eventType.AsString(), command.CommandText);
+        }
     }
 
-    public void OnError(DbCommand command, Exception ex)
+    public void OnError(EventType eventType, DbCommand command, Exception ex)
     {
         if (!option.OutputExceptionLog)
         {
             return;
         }
 
-        log.ErrorException(ex);
+        if (option.OutputParameter)
+        {
+            log.ErrorExceptionWithParameter(eventType.AsString(), command.CommandText, ex);
+        }
+        else
+        {
+            log.ErrorException(eventType.AsString(), ex);
+        }
     }
 
     private static string MakeParameterText(DbCommand command)
@@ -83,12 +106,21 @@ public sealed class LoggingExporter : IProfileExporter
 
 internal static partial class Log
 {
-    [LoggerMessage(Level = LogLevel.Information, Message = "SQL execute. sql=[{sql}], parameter=[{parameter}]")]
-    public static partial void InfoExecute(this ILogger logger, string sql, string parameter);
+    [LoggerMessage(Level = LogLevel.Information, Message = "SQL execute. event=[{eventType}], sql=[{sql}], parameter=[{parameter}]")]
+    public static partial void InfoExecuteWithParameter(this ILogger logger, string eventType, string sql, string parameter);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], sql=[{sql}], parameter=[{parameter}]")]
-    public static partial void InfoExecuted(this ILogger logger, long elapsed, string sql, string parameter);
+    [LoggerMessage(Level = LogLevel.Information, Message = "SQL execute. event=[{eventType}], sql=[{sql}]")]
+    public static partial void InfoExecute(this ILogger logger, string eventType, string sql);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception.")]
-    public static partial void ErrorException(this ILogger logger, Exception ex);
+    [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}], parameter=[{parameter}]")]
+    public static partial void InfoExecutedWithParameter(this ILogger logger, long elapsed, string eventType, string sql, string parameter);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}]")]
+    public static partial void InfoExecuted(this ILogger logger, long elapsed, string eventType, string sql);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. sql=[{sql}], parameter=[{parameter}]")]
+    public static partial void ErrorExceptionWithParameter(this ILogger logger, string sql, string parameter, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. sql=[{sql}]")]
+    public static partial void ErrorException(this ILogger logger, string sql, Exception ex);
 }

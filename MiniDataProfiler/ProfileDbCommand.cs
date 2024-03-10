@@ -90,7 +90,7 @@ internal sealed class ProfileDbCommand : DbCommand
 
     public override int ExecuteNonQuery()
     {
-        exporter.OnExecuteStart(this);
+        exporter.OnExecuteStart(EventType.ExecuteNonQuery, this);
         var start = Stopwatch.GetTimestamp();
         try
         {
@@ -98,18 +98,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            exporter.OnError(this, e);
+            exporter.OnError(EventType.ExecuteNonQuery, this, e);
             throw;
         }
         finally
         {
-            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
+            exporter.OnExecuteFinally(EventType.ExecuteNonQuery, this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
     {
-        exporter.OnExecuteStart(this);
+        exporter.OnExecuteStart(EventType.ExecuteNonQueryAsync, this);
         var start = Stopwatch.GetTimestamp();
         try
         {
@@ -117,18 +117,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            exporter.OnError(this, e);
+            exporter.OnError(EventType.ExecuteNonQueryAsync, this, e);
             throw;
         }
         finally
         {
-            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
+            exporter.OnExecuteFinally(EventType.ExecuteNonQueryAsync, this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     public override object? ExecuteScalar()
     {
-        exporter.OnExecuteStart(this);
+        exporter.OnExecuteStart(EventType.ExecuteScalar, this);
         var start = Stopwatch.GetTimestamp();
         try
         {
@@ -136,18 +136,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            exporter.OnError(this, e);
+            exporter.OnError(EventType.ExecuteScalar, this, e);
             throw;
         }
         finally
         {
-            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
+            exporter.OnExecuteFinally(EventType.ExecuteScalar, this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     public override async Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
     {
-        exporter.OnExecuteStart(this);
+        exporter.OnExecuteStart(EventType.ExecuteScalarAsync, this);
         var start = Stopwatch.GetTimestamp();
         try
         {
@@ -155,18 +155,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            exporter.OnError(this, e);
+            exporter.OnError(EventType.ExecuteScalarAsync, this, e);
             throw;
         }
         finally
         {
-            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
+            exporter.OnExecuteFinally(EventType.ExecuteScalarAsync, this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
     {
-        exporter.OnExecuteStart(this);
+        exporter.OnExecuteStart(EventType.ExecuteReader, this);
         var start = Stopwatch.GetTimestamp();
         try
         {
@@ -175,18 +175,18 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            exporter.OnError(this, e);
+            exporter.OnError(EventType.ExecuteReader, this, e);
             throw;
         }
         finally
         {
-            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
+            exporter.OnExecuteFinally(EventType.ExecuteReader, this, Stopwatch.GetElapsedTime(start));
         }
     }
 
     protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
     {
-        exporter.OnExecuteStart(this);
+        exporter.OnExecuteStart(EventType.ExecuteReaderAsync, this);
         var start = Stopwatch.GetTimestamp();
         try
         {
@@ -195,12 +195,12 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         catch (Exception e)
         {
-            exporter.OnError(this, e);
+            exporter.OnError(EventType.ExecuteReaderAsync, this, e);
             throw;
         }
         finally
         {
-            exporter.OnExecuteFinally(this, Stopwatch.GetElapsedTime(start));
+            exporter.OnExecuteFinally(EventType.ExecuteReaderAsync, this, Stopwatch.GetElapsedTime(start));
         }
     }
 
