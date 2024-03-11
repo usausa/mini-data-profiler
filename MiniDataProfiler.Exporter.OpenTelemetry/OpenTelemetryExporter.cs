@@ -24,7 +24,7 @@ public sealed class OpenTelemetryExporter : IProfileExporter, IDisposable
     public OpenTelemetryExporter(OpenTelemetryExporterOption option)
     {
         this.option = option;
-        activitySource = new ActivitySource(SourceName.Name, SourceName.Version);
+        activitySource = new ActivitySource(Source.Name, Source.Version);
     }
 
     public void Dispose()

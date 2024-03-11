@@ -2,9 +2,9 @@ namespace MiniDataProfiler.Exporter.OpenTelemetry;
 
 using System.Reflection;
 
-internal static class SourceName
+internal static class Source
 {
-    private static readonly AssemblyName AssemblyName = typeof(SourceName).Assembly.GetName();
+    private static readonly AssemblyName AssemblyName = typeof(Source).Assembly.GetName();
 
     public static string Name => AssemblyName.Name!;
 

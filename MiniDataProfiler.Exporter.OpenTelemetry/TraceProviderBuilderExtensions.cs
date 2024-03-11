@@ -6,7 +6,7 @@ public static class TraceProviderBuilderExtensions
 {
     public static TracerProviderBuilder AddMiniDataProfilerInstrumentation(this TracerProviderBuilder builder)
     {
-        builder.AddSource(SourceName.Name);
+        builder.AddSource(Source.Name);
         return builder;
     }
 }
