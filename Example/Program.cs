@@ -55,11 +55,9 @@ using var tracerProvider = Sdk.CreateTracerProviderBuilder()
 var exporter = new ChainExporter(logExporter, new OpenTelemetryExporter(new OpenTelemetryExporterOption()));
 
 // Create accessor
+var dbProvider = new DelegateDbProvider(() => new ProfileDbConnection(exporter, new SqliteConnection(connectionString)));
 var engine = new ExecuteEngineConfig()
-    .ConfigureComponents(c =>
-    {
-        c.Add<IDbProvider>(new DelegateDbProvider(() => new ProfileDbConnection(exporter, new SqliteConnection(connectionString))));
-    })
+    .ConfigureComponents(c => c.Add<IDbProvider>(dbProvider))
     .ToEngine();
 var factory = new DataAccessorFactory(engine);
 
@@ -83,3 +81,14 @@ Console.WriteLine(all.Count);
 
 var ordered = accessor.QueryDataList(order: "Name DESC");
 Console.WriteLine(ordered[0].Name);
+
+dbProvider.UsingTx((_, tx) =>
+{
+    accessor.Insert(tx, new DataEntity { Id = 11L, Name = "Data-11", Type = "A" });
+    accessor.Insert(tx, new DataEntity { Id = 12L, Name = "Data-21", Type = "B" });
+
+    tx.Commit();
+});
+
+all = accessor.QueryDataList();
+Console.WriteLine(all.Count);
