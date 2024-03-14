@@ -117,10 +117,10 @@ public sealed class ProfileDbConnection : DbConnection
     // Transaction
 
     protected override DbTransaction BeginDbTransaction(System.Data.IsolationLevel isolationLevel) =>
-        con.BeginTransaction(isolationLevel);
+        new ProfileDbTransaction(this, con.BeginTransaction(isolationLevel));
 
-    protected override ValueTask<DbTransaction> BeginDbTransactionAsync(System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken) =>
-        con.BeginTransactionAsync(isolationLevel, cancellationToken);
+    protected override async ValueTask<DbTransaction> BeginDbTransactionAsync(System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken) =>
+        new ProfileDbTransaction(this, await con.BeginTransactionAsync(isolationLevel, cancellationToken).ConfigureAwait(false));
 
     public override void EnlistTransaction(Transaction? transaction) => con.EnlistTransaction(transaction);
 

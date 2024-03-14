@@ -42,7 +42,7 @@ internal sealed class ProfileDbCommand : DbCommand
         set
         {
             con = value;
-            cmd.Connection = con is ProfileDbConnection wrapped ? wrapped.InnerConnection : value;
+            cmd.Connection = value is ProfileDbConnection wrapped ? wrapped.InnerConnection : value;
         }
     }
 
@@ -64,7 +64,11 @@ internal sealed class ProfileDbCommand : DbCommand
     protected override DbTransaction? DbTransaction
     {
         get => tx;
-        set => tx = value;
+        set
+        {
+            tx = value;
+            cmd.Transaction = value is ProfileDbTransaction wrapped ? wrapped.InnerTransaction : value;
+        }
     }
 
     public ProfileDbCommand(IProfileExporter exporter, ProfileDbConnection con, DbCommand cmd)
