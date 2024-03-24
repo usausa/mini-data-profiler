@@ -14,6 +14,8 @@ public sealed class LoggingExporterOption
     public bool OutputExceptionLog { get; set; }
 
     public bool OutputParameter { get; set; } = true;
+
+    public TimeSpan ElapsedThreshold { get; set; } = TimeSpan.Zero;
 }
 
 public sealed class LoggingExporter : IProfileExporter
@@ -47,7 +49,7 @@ public sealed class LoggingExporter : IProfileExporter
 
     public void OnExecuteFinally(EventType eventType, DbCommand command, TimeSpan elapsed)
     {
-        if (!option.OutputFinallyLog)
+        if (!option.OutputFinallyLog || (elapsed < option.ElapsedThreshold))
         {
             return;
         }
