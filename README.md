@@ -3,8 +3,8 @@
 | Package | Info | Description |
 |-|-|-|
 | MiniDataProfiler | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler)](https://www.nuget.org/packages/MiniDataProfiler/) | Core |
-| MiniDataProfiler.Exporter.Logging | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler.Exporter.Logging)](https://www.nuget.org/packages/MiniDataProfiler.Exporter.Logging/) | Microsoft.Extensions.Logging exporter |
-| MiniDataProfiler.Exporter.OpenTelemetry | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler.Exporter.OpenTelemetry)](https://www.nuget.org/packages/MiniDataProfiler.Exporter.OpenTelemetry/) | OpenTelemetry exporter |
+| MiniDataProfiler.Listener.Logging | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler.Listener.Logging)](https://www.nuget.org/packages/MiniDataProfiler.Listener.Logging/) | Microsoft.Extensions.Logging Listener |
+| MiniDataProfiler.Listener.OpenTelemetry | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler.Listener.OpenTelemetry)](https://www.nuget.org/packages/MiniDataProfiler.Listener.OpenTelemetry/) | OpenTelemetry Listener |
 
 ## What is this?
 
@@ -19,10 +19,10 @@
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
     builder
-        .AddFilter("MiniDataProfiler.Exporter.Logging", LogLevel.Information)
+        .AddFilter("MiniDataProfiler.Listener.Logging", LogLevel.Information)
         .AddConsole();
 });
-var logExporter = new LoggingExporter(loggerFactory.CreateLogger<LoggingExporter>(), new LoggingExporterOption());
+var logListener = new LoggingListener(loggerFactory.CreateLogger<LoggingListener>(), new LoggingListenerOption());
 
 // Setup OpenTelemetry
 using var tracerProvider = Sdk.CreateTracerProviderBuilder()
@@ -37,10 +37,10 @@ using var tracerProvider = Sdk.CreateTracerProviderBuilder()
     })
     .Build();
 
-// Exporters
-var exporter = new ChainExporter(logExporter, new OpenTelemetryExporter(new OpenTelemetryExporterOption()));
+// Listeners
+var Listener = new ChainListener(logListener, new OpenTelemetryListener(new OpenTelemetryListenerOption()));
 
 // Use ProfileDbConnection
-using var con = new ProfileDbConnection(exporter, new SqliteConnection(connectionString));
+using var con = new ProfileDbConnection(Listener, new SqliteConnection(connectionString));
 ...
 ```

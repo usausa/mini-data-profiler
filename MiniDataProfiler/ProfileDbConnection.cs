@@ -9,7 +9,7 @@ using System.Transactions;
 #pragma warning disable IDE0032
 public sealed class ProfileDbConnection : DbConnection
 {
-    private readonly IProfileExporter exporter;
+    private readonly IProfileListener listener;
 
     private readonly DbConnection con;
 
@@ -36,9 +36,9 @@ public sealed class ProfileDbConnection : DbConnection
 
     public override bool CanCreateBatch => false; //con.CanCreateBatch;
 
-    public ProfileDbConnection(IProfileExporter exporter, DbConnection con)
+    public ProfileDbConnection(IProfileListener listener, DbConnection con)
     {
-        this.exporter = exporter;
+        this.listener = listener;
         this.con = con;
 
         con.StateChange += OnStateChange;
@@ -126,7 +126,7 @@ public sealed class ProfileDbConnection : DbConnection
 
     // Command
 
-    protected override DbCommand CreateDbCommand() => new ProfileDbCommand(exporter, this, con.CreateCommand());
+    protected override DbCommand CreateDbCommand() => new ProfileDbCommand(listener, this, con.CreateCommand());
 
     // TODO Batch
 

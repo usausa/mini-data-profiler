@@ -20,9 +20,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniDataProfiler", "MiniDat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example", "Example\Example.csproj", "{DBA3D219-D6DC-4D4D-8514-658E5DC12E28}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniDataProfiler.Exporter.Logging", "MiniDataProfiler.Exporter.Logging\MiniDataProfiler.Exporter.Logging.csproj", "{44379563-6F74-4722-8C82-856E0DFFDBD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniDataProfiler.Listener.Logging", "MiniDataProfiler.Listener.Logging\MiniDataProfiler.Listener.Logging.csproj", "{44379563-6F74-4722-8C82-856E0DFFDBD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniDataProfiler.Exporter.OpenTelemetry", "MiniDataProfiler.Exporter.OpenTelemetry\MiniDataProfiler.Exporter.OpenTelemetry.csproj", "{846398A7-C015-4B0B-920E-5544020DA95C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniDataProfiler.Listener.OpenTelemetry", "MiniDataProfiler.Listener.OpenTelemetry\MiniDataProfiler.Listener.OpenTelemetry.csproj", "{846398A7-C015-4B0B-920E-5544020DA95C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,4 @@
-namespace MiniDataProfiler.Exporter.OpenTelemetry;
+namespace MiniDataProfiler.Listener.OpenTelemetry;
 
 using global::OpenTelemetry.Trace;
 

@@ -7,8 +7,8 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
 using MiniDataProfiler;
-using MiniDataProfiler.Exporter.Logging;
-using MiniDataProfiler.Exporter.OpenTelemetry;
+using MiniDataProfiler.Listener.Logging;
+using MiniDataProfiler.Listener.OpenTelemetry;
 
 using OpenTelemetry;
 using OpenTelemetry.Resources;
@@ -31,10 +31,10 @@ if (File.Exists(fileName))
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
     builder
-        .AddFilter("MiniDataProfiler.Exporter.Logging", LogLevel.Information)
+        .AddFilter("MiniDataProfiler.Listener.Logging", LogLevel.Information)
         .AddConsole();
 });
-var logExporter = new LoggingExporter(loggerFactory.CreateLogger<LoggingExporter>(), new LoggingExporterOption());
+var logListener = new LoggingListener(loggerFactory.CreateLogger<LoggingListener>(), new LoggingListenerOption());
 
 // Setup OpenTelemetry
 using var exampleSource = new ActivitySource("Example");
@@ -51,11 +51,11 @@ using var tracerProvider = Sdk.CreateTracerProviderBuilder()
     })
     .Build();
 
-// Exporters
-var exporter = new ChainExporter(logExporter, new OpenTelemetryExporter(new OpenTelemetryExporterOption()));
+// Listeners
+var listener = new ChainListener(logListener, new OpenTelemetryListener(new OpenTelemetryListenerOption()));
 
 // Create accessor
-var dbProvider = new DelegateDbProvider(() => new ProfileDbConnection(exporter, new SqliteConnection(connectionString)));
+var dbProvider = new DelegateDbProvider(() => new ProfileDbConnection(listener, new SqliteConnection(connectionString)));
 var engine = new ExecuteEngineConfig()
     .ConfigureComponents(c => c.Add<IDbProvider>(dbProvider))
     .ToEngine();
