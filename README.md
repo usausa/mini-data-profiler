@@ -38,9 +38,9 @@ using var tracerProvider = Sdk.CreateTracerProviderBuilder()
     .Build();
 
 // Listeners
-var Listener = new ChainListener(logListener, new OpenTelemetryListener(new OpenTelemetryListenerOption()));
+var listener = new ChainListener(logListener, new OpenTelemetryListener(new OpenTelemetryListenerOption()));
 
 // Use ProfileDbConnection
-using var con = new ProfileDbConnection(Listener, new SqliteConnection(connectionString));
+using var con = new ProfileDbConnection(listener, new SqliteConnection(connectionString));
 ...
 ```
