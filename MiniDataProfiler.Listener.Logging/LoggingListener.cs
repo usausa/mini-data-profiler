@@ -122,13 +122,28 @@ public sealed class LoggingListener : IProfileListener
             return;
         }
 
-        if (option.OutputParameter)
+        var records = context.Result.RecordsAffected;
+        if (records < 0)
         {
-            log.InfoReaderExecutedWithParameter((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.Result.RecordsAffected, context.Command.CommandText, MakeParameterText(context.Command));
+            if (option.OutputParameter)
+            {
+                log.InfoReaderExecutedWithParameter((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.Command.CommandText, MakeParameterText(context.Command));
+            }
+            else
+            {
+                log.InfoReaderExecuted((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.Command.CommandText);
+            }
         }
         else
         {
-            log.InfoReaderExecuted((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.Result.RecordsAffected, context.Command.CommandText);
+            if (option.OutputParameter)
+            {
+                log.InfoReaderExecutedWithParameter((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), records, context.Command.CommandText, MakeParameterText(context.Command));
+            }
+            else
+            {
+                log.InfoReaderExecuted((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), records, context.Command.CommandText);
+            }
         }
     }
 
@@ -204,6 +219,12 @@ internal static partial class Log
 
     [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], event=[{eventType}], records=[{records}], sql=[{sql}]")]
     public static partial void InfoReaderExecuted(this ILogger logger, long elapsed, string eventType, int records, string sql);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}], parameter=[{parameter}]")]
+    public static partial void InfoReaderExecutedWithParameter(this ILogger logger, long elapsed, string eventType, string sql, string parameter);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}]")]
+    public static partial void InfoReaderExecuted(this ILogger logger, long elapsed, string eventType, string sql);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. event=[{eventType}], sql=[{sql}], parameter=[{parameter}]")]
     public static partial void ErrorExceptionWithParameter(this ILogger logger, string eventType, string sql, string parameter, Exception ex);

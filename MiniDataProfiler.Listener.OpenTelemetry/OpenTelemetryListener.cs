@@ -90,7 +90,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
     public void ReaderExecuted(in ProfilerExecutedContext<DbDataReader> context)
     {
-        if (!option.UseResultTag)
+        if (!option.UseResultTag || (context.Result.RecordsAffected < 0))
         {
             return;
         }
