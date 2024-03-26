@@ -94,129 +94,163 @@ internal sealed class ProfileDbCommand : DbCommand
 
     public override int ExecuteNonQuery()
     {
-        listener.NonQueryExecuting(new ProfilerExecutingContext(EventType.ExecuteNonQuery, this));
+        var executingContext = new ProfilerExecutingContext(EventType.ExecuteNonQuery, this);
+        listener.NonQueryExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
         try
         {
             var result = cmd.ExecuteNonQuery();
-            listener.NonQueryExecuted(new ProfilerExecutedContext<int>(EventType.ExecuteNonQuery, this, result, Stopwatch.GetElapsedTime(start)));
+            var executedContext = new ProfilerExecutedContext<int>(EventType.ExecuteNonQuery, this, result, Stopwatch.GetElapsedTime(start));
+            listener.NonQueryExecuted(in executedContext);
             return result;
         }
         catch (Exception ex)
         {
-            listener.CommandFailed(new ProfilerFailedContext(EventType.ExecuteNonQuery, this, ex));
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteNonQuery, this, ex);
+            listener.CommandFailed(in failedContext);
             throw;
         }
         finally
         {
-            listener.CommandFinally(new ProfilerFinallyContext(EventType.ExecuteNonQuery, this));
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteNonQuery, this);
+            listener.CommandFinally(in finallyContext);
         }
     }
 
     public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
     {
-        listener.NonQueryExecuting(new ProfilerExecutingContext(EventType.ExecuteNonQueryAsync, this));
+        var executingContext = new ProfilerExecutingContext(EventType.ExecuteNonQueryAsync, this);
+        listener.NonQueryExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
         try
         {
             var result = await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-            listener.NonQueryExecuted(new ProfilerExecutedContext<int>(EventType.ExecuteNonQueryAsync, this, result, Stopwatch.GetElapsedTime(start)));
+
+            var executedContext = new ProfilerExecutedContext<int>(EventType.ExecuteNonQueryAsync, this, result, Stopwatch.GetElapsedTime(start));
+            listener.NonQueryExecuted(in executedContext);
+
             return result;
         }
         catch (Exception ex)
         {
-            listener.CommandFailed(new ProfilerFailedContext(EventType.ExecuteNonQueryAsync, this, ex));
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteNonQueryAsync, this, ex);
+            listener.CommandFailed(in failedContext);
             throw;
         }
         finally
         {
-            listener.CommandFinally(new ProfilerFinallyContext(EventType.ExecuteNonQueryAsync, this));
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteNonQueryAsync, this);
+            listener.CommandFinally(in finallyContext);
         }
     }
 
     public override object? ExecuteScalar()
     {
-        listener.ScalarExecuting(new ProfilerExecutingContext(EventType.ExecuteScalar, this));
+        var executingContext = new ProfilerExecutingContext(EventType.ExecuteScalar, this);
+        listener.ScalarExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
         try
         {
             var result = cmd.ExecuteScalar();
-            listener.ScalarExecuted(new ProfilerExecutedContext<object?>(EventType.ExecuteScalar, this, result, Stopwatch.GetElapsedTime(start)));
+
+            var executedContext = new ProfilerExecutedContext<object?>(EventType.ExecuteScalar, this, result, Stopwatch.GetElapsedTime(start));
+            listener.ScalarExecuted(in executedContext);
+
             return result;
         }
         catch (Exception ex)
         {
-            listener.CommandFailed(new ProfilerFailedContext(EventType.ExecuteScalar, this, ex));
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteScalar, this, ex);
+            listener.CommandFailed(in failedContext);
             throw;
         }
         finally
         {
-            listener.CommandFinally(new ProfilerFinallyContext(EventType.ExecuteScalar, this));
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteScalar, this);
+            listener.CommandFinally(in finallyContext);
         }
     }
 
     public override async Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
     {
-        listener.ScalarExecuting(new ProfilerExecutingContext(EventType.ExecuteScalarAsync, this));
+        var executingContext = new ProfilerExecutingContext(EventType.ExecuteScalarAsync, this);
+        listener.ScalarExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
         try
         {
             var result = await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
-            listener.ScalarExecuted(new ProfilerExecutedContext<object?>(EventType.ExecuteScalarAsync, this, result, Stopwatch.GetElapsedTime(start)));
+
+            var executedContext = new ProfilerExecutedContext<object?>(EventType.ExecuteScalarAsync, this, result, Stopwatch.GetElapsedTime(start));
+            listener.ScalarExecuted(in executedContext);
+
             return result;
         }
         catch (Exception ex)
         {
-            listener.CommandFailed(new ProfilerFailedContext(EventType.ExecuteScalarAsync, this, ex));
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteScalarAsync, this, ex);
+            listener.CommandFailed(in failedContext);
             throw;
         }
         finally
         {
-            listener.CommandFinally(new ProfilerFinallyContext(EventType.ExecuteScalarAsync, this));
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteScalarAsync, this);
+            listener.CommandFinally(in finallyContext);
         }
     }
 
     protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
     {
-        listener.ReaderExecuting(new ProfilerExecutingContext(EventType.ExecuteReader, this));
+        var executingContext = new ProfilerExecutingContext(EventType.ExecuteReader, this);
+        listener.ReaderExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
         try
         {
             // TODO wrap reader
             var reader = cmd.ExecuteReader(behavior);
-            listener.ReaderExecuted(new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReader, this, reader, Stopwatch.GetElapsedTime(start)));
+
+            var executedContext = new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReader, this, reader, Stopwatch.GetElapsedTime(start));
+            listener.ReaderExecuted(in executedContext);
+
             return reader;
         }
         catch (Exception ex)
         {
-            listener.CommandFailed(new ProfilerFailedContext(EventType.ExecuteReader, this, ex));
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteReader, this, ex);
+            listener.CommandFailed(in failedContext);
             throw;
         }
         finally
         {
-            listener.CommandFinally(new ProfilerFinallyContext(EventType.ExecuteReader, this));
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteReader, this);
+            listener.CommandFinally(in finallyContext);
         }
     }
 
     protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
     {
-        listener.ReaderExecuting(new ProfilerExecutingContext(EventType.ExecuteReaderAsync, this));
+        var executingContext = new ProfilerExecutingContext(EventType.ExecuteReaderAsync, this);
+        listener.ReaderExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
         try
         {
             // TODO wrap reader
             var reader = await cmd.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
-            listener.ReaderExecuted(new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReaderAsync, this, reader, Stopwatch.GetElapsedTime(start)));
+
+            var executedContext = new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReaderAsync, this, reader, Stopwatch.GetElapsedTime(start));
+            listener.ReaderExecuted(in executedContext);
+
             return reader;
         }
         catch (Exception ex)
         {
-            listener.CommandFailed(new ProfilerFailedContext(EventType.ExecuteReaderAsync, this, ex));
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteReaderAsync, this, ex);
+            listener.CommandFailed(in failedContext);
             throw;
         }
         finally
         {
-            listener.CommandFinally(new ProfilerFinallyContext(EventType.ExecuteReaderAsync, this));
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteReaderAsync, this);
+            listener.CommandFinally(in finallyContext);
         }
     }
 
