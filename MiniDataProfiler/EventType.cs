@@ -8,7 +8,7 @@ public enum EventType
     ExecuteScalar,
     ExecuteScalarAsync,
     ExecuteReader,
-    ExecuteReaderAsync,
+    ExecuteReaderAsync
 }
 
 public static class EventTypeExtensions
