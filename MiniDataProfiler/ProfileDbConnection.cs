@@ -13,7 +13,7 @@ public sealed class ProfileDbConnection : DbConnection
 
     private readonly DbConnection con;
 
-    internal DbConnection InnerConnection => con;
+    public DbConnection InnerConnection => con;
 
     [AllowNull]
     public override string ConnectionString
