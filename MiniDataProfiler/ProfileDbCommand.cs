@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
+// ReSharper disable ReplaceWithFieldKeyword
 internal sealed class ProfileDbCommand : DbCommand
 {
     private readonly IProfileListener listener;

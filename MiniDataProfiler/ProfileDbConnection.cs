@@ -64,25 +64,21 @@ public sealed class ProfileDbConnection : DbConnection
 
     public override void Open()
     {
-        // TODO watch & report ?
         con.Open();
     }
 
     public override Task OpenAsync(CancellationToken cancellationToken)
     {
-        // TODO watch & report ?
         return con.OpenAsync(cancellationToken);
     }
 
     public override void Close()
     {
-        // TODO watch & report ?
         con.Close();
     }
 
     public override Task CloseAsync()
     {
-        // TODO watch & report
         return con.CloseAsync();
     }
 
