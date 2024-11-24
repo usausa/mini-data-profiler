@@ -2,9 +2,9 @@
 
 | Package | Info | Description |
 |-|-|-|
-| MiniDataProfiler | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler)](https://www.nuget.org/packages/MiniDataProfiler/) | Core |
-| MiniDataProfiler.Listener.Logging | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler.Listener.Logging)](https://www.nuget.org/packages/MiniDataProfiler.Listener.Logging/) | Microsoft.Extensions.Logging Listener |
-| MiniDataProfiler.Listener.OpenTelemetry | [![NuGet Badge](https://buildstats.info/nuget/MiniDataProfiler.Listener.OpenTelemetry)](https://www.nuget.org/packages/MiniDataProfiler.Listener.OpenTelemetry/) | OpenTelemetry Listener |
+| MiniDataProfiler | [![NuGet](https://img.shields.io/nuget/v/MiniDataProfiler.svg)](https://www.nuget.org/packages/MiniDataProfiler/) | Core |
+| MiniDataProfiler.Listener.Logging | [![NuGet](https://img.shields.io/nuget/v/MiniDataProfiler.Listener.Logging.svg)](https://www.nuget.org/packages/MiniDataProfiler.Listener.Logging/) | Microsoft.Extensions.Logging Listener |
+| MiniDataProfiler.Listener.OpenTelemetry | [![NuGet](https://img.shields.io/nuget/v/MiniDataProfiler.Listener.OpenTelemetry.svg)](https://www.nuget.org/packages/MiniDataProfiler.Listener.OpenTelemetry/) | OpenTelemetry Listener |
 
 ## What is this?
 
