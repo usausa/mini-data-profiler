@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Analyzers.ruleset" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="LICENSE" />
+    <File Path="MiniDataProfiler.sln.DotSettings" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="MiniDataProfiler/MiniDataProfiler.csproj" />
+  <Project Path="MiniDataProfiler.Listener.Logging/MiniDataProfiler.Listener.Logging.csproj" />
+  <Project Path="MiniDataProfiler.Listener.OpenTelemetry/MiniDataProfiler.Listener.OpenTelemetry.csproj" />
+  <Project Path="Example/Example.csproj" />
+</Solution>
