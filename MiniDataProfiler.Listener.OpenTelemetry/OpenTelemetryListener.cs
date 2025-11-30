@@ -111,7 +111,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
             return;
         }
 
-        if (option.UseParameterTag)
+        if (option.UseExceptionTag)
         {
             activity.SetTag("data.exception", context.Exception);
         }
