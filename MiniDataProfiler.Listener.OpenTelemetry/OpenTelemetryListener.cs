@@ -123,7 +123,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         var activity = data.Activity;
         if (activity is not null)
         {
-            activity.SetTag("otel.status_code", data.HasError ? "ERROR" : "OK");
+            activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
             activity.Dispose();
             data.Activity = null;
         }
@@ -137,7 +137,6 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         var data = GetAsyncLocalData();
         data.Activity = activity;
         data.HasError = false;
-
         if (activity is null)
         {
             return;
@@ -145,12 +144,12 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         if (option.UseSqlTag)
         {
-            activity.SetTag("data.sql", command.CommandText);
+            activity.SetTag("data.command.text", command.CommandText);
         }
 
         if (option.UseParameterTag)
         {
-            activity.SetTag("data.parameter", MakeParameterText(command));
+            activity.SetTag("data.command.parameter", MakeParameterText(command));
         }
 
         activity.Start();
