@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Transactions;
 
 // ReSharper disable ConvertToAutoProperty
+#pragma warning disable IDE0032
 public sealed class ProfileDbConnection : DbConnection
 {
     private readonly IProfileListener listener;
@@ -127,4 +128,5 @@ public sealed class ProfileDbConnection : DbConnection
 
     protected override DbBatch CreateDbBatch() => throw new NotSupportedException();
 }
+#pragma warning restore IDE0032
 // ReSharper restore ConvertToAutoProperty
