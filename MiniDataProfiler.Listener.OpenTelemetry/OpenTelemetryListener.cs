@@ -155,6 +155,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         activity.Start();
     }
 
+    [SkipLocalsInit]
     private static string MakeParameterText(DbCommand command)
     {
         var handler = new DefaultInterpolatedStringHandler(0, 0, default!, stackalloc char[256]);
