@@ -12,8 +12,7 @@ public enum EventType
     BatchExecuteNonQuery,
     BatchExecuteNonQueryAsync,
     BatchExecuteReader,
-    BatchExecuteReaderAsync,
-    BatchFailed,
+    BatchExecuteReaderAsync
 }
 
 public static class EventTypeExtensions

@@ -5,7 +5,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-/// <summary>DbDataSource から生成されたコマンド用のプロファイリングラッパー（接続なし）。</summary>
 internal sealed class ProfileDbDataSourceCommand : DbCommand
 {
     private readonly IProfileListener listener;
