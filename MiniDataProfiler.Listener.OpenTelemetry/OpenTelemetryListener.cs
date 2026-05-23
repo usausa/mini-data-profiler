@@ -67,7 +67,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         var data = GetAsyncLocalData();
         var activity = data.Activity;
-        activity?.SetTag("otel.effect", context.Result);
+        activity?.SetTag("db.response.rows_affected", context.Result);
     }
 
     public void ScalarExecuting(in ProfilerExecutingContext context) =>
@@ -82,7 +82,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         var data = GetAsyncLocalData();
         var activity = data.Activity;
-        activity?.SetTag("otel.result", context.Result);
+        activity?.SetTag("db.response.returned_value", context.Result);
     }
 
     public void ReaderExecuting(in ProfilerExecutingContext context) =>
@@ -97,7 +97,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         var data = GetAsyncLocalData();
         var activity = data.Activity;
-        activity?.SetTag("otel.records", context.Result.RecordsAffected);
+        activity?.SetTag("db.response.rows_affected", context.Result.RecordsAffected);
     }
 
     public void CommandFailed(in ProfilerFailedContext context)
@@ -113,7 +113,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         if (option.UseExceptionTag)
         {
-            activity.SetTag("data.exception", context.Exception);
+            activity.SetTag("exception.message", context.Exception);
         }
     }
 
@@ -142,7 +142,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         var data = GetAsyncLocalData();
         var activity = data.Activity;
-        activity?.SetTag("otel.effect", context.Result);
+        activity?.SetTag("db.response.rows_affected", context.Result);
     }
 
     public void BatchReaderExecuting(in BatchProfilerExecutingContext context) =>
@@ -157,7 +157,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         var data = GetAsyncLocalData();
         var activity = data.Activity;
-        activity?.SetTag("otel.records", context.Result.RecordsAffected);
+        activity?.SetTag("db.response.rows_affected", context.Result.RecordsAffected);
     }
 
     public void BatchFailed(in BatchProfilerFailedContext context)
@@ -173,7 +173,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         if (option.UseExceptionTag)
         {
-            activity.SetTag("data.exception", context.Exception);
+            activity.SetTag("exception.message", context.Exception);
         }
     }
 
@@ -204,7 +204,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         if (option.UseSqlTag)
         {
-            activity.SetTag("data.command.text", MakeBatchSqlText(batch));
+            activity.SetTag("db.query.text", MakeBatchSqlText(batch));
         }
 
         activity.Start();
@@ -247,12 +247,12 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
         if (option.UseSqlTag)
         {
-            activity.SetTag("data.command.text", command.CommandText);
+            activity.SetTag("db.query.text", command.CommandText);
         }
 
         if (option.UseParameterTag)
         {
-            activity.SetTag("data.command.parameter", MakeParameterText(command));
+            activity.SetTag("db.query.parameter", MakeParameterText(command));
         }
 
         activity.Start();
