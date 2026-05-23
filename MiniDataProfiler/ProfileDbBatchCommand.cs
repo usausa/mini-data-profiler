@@ -8,11 +8,11 @@ internal sealed class ProfileDbBatchCommand : DbBatchCommand
     private readonly DbBatchCommand cmd;
 
     #pragma warning disable CA2100
-        public override string CommandText
-        {
-            get => cmd.CommandText;
-            set => cmd.CommandText = value!;
-        }
+    public override string CommandText
+    {
+        get => cmd.CommandText;
+        set => cmd.CommandText = value;
+    }
     #pragma warning restore CA2100
 
     public override CommandType CommandType
