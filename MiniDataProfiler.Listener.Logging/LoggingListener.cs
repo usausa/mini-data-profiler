@@ -169,6 +169,92 @@ public sealed class LoggingListener : IProfileListener
         // Do Nothing
     }
 
+    public void BatchNonQueryExecuting(in BatchProfilerExecutingContext context)
+    {
+        if (!option.OutputStartLog)
+        {
+            return;
+        }
+
+        log.InfoExecuting(context.EventType.AsString(), MakeBatchSqlText(context.Batch));
+    }
+
+    public void BatchNonQueryExecuted(in BatchProfilerExecutedContext<int> context)
+    {
+        if (!option.OutputFinallyLog || (context.Duration < option.ElapsedThreshold))
+        {
+            return;
+        }
+
+        log.InfoNonQueryExecuted((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.Result, MakeBatchSqlText(context.Batch));
+    }
+
+    public void BatchReaderExecuting(in BatchProfilerExecutingContext context)
+    {
+        if (!option.OutputStartLog)
+        {
+            return;
+        }
+
+        log.InfoExecuting(context.EventType.AsString(), MakeBatchSqlText(context.Batch));
+    }
+
+    public void BatchReaderExecuted(in BatchProfilerExecutedContext<DbDataReader> context)
+    {
+        if (!option.OutputFinallyLog || (context.Duration < option.ElapsedThreshold))
+        {
+            return;
+        }
+
+        var records = context.Result.RecordsAffected;
+        if (records < 0)
+        {
+            log.InfoReaderExecuted((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), MakeBatchSqlText(context.Batch));
+        }
+        else
+        {
+            log.InfoReaderExecuted((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), records, MakeBatchSqlText(context.Batch));
+        }
+    }
+
+    public void BatchFailed(in BatchProfilerFailedContext context)
+    {
+        if (!option.OutputExceptionLog)
+        {
+            return;
+        }
+
+        log.ErrorException(context.EventType.AsString(), MakeBatchSqlText(context.Batch), context.Exception);
+    }
+
+    public void BatchFinally(in BatchProfilerFinallyContext context)
+    {
+        // Do Nothing
+    }
+
+    [SkipLocalsInit]
+    private static string MakeBatchSqlText(DbBatch batch)
+    {
+        var handler = new DefaultInterpolatedStringHandler(0, 0, default!, stackalloc char[512]);
+
+        var first = true;
+        foreach (var cmd in batch.BatchCommands)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                handler.AppendLiteral(" | ");
+            }
+
+            handler.AppendLiteral(cmd.CommandText);
+        }
+
+        return handler.ToStringAndClear();
+    }
+
     [SkipLocalsInit]
     private static string MakeParameterText(DbCommand command)
     {

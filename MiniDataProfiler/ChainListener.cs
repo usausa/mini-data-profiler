@@ -146,4 +146,106 @@ public sealed class ChainListener : IProfileListener
 #pragma warning restore CA1031
         }
     }
+
+    public void BatchNonQueryExecuting(in BatchProfilerExecutingContext context)
+    {
+        foreach (var listener in listeners)
+        {
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                listener.BatchNonQueryExecuting(in context);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        }
+    }
+
+    public void BatchNonQueryExecuted(in BatchProfilerExecutedContext<int> context)
+    {
+        foreach (var listener in listeners)
+        {
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                listener.BatchNonQueryExecuted(in context);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        }
+    }
+
+    public void BatchReaderExecuting(in BatchProfilerExecutingContext context)
+    {
+        foreach (var listener in listeners)
+        {
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                listener.BatchReaderExecuting(in context);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        }
+    }
+
+    public void BatchReaderExecuted(in BatchProfilerExecutedContext<DbDataReader> context)
+    {
+        foreach (var listener in listeners)
+        {
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                listener.BatchReaderExecuted(in context);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        }
+    }
+
+    public void BatchFailed(in BatchProfilerFailedContext context)
+    {
+        foreach (var listener in listeners)
+        {
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                listener.BatchFailed(in context);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        }
+    }
+
+    public void BatchFinally(in BatchProfilerFinallyContext context)
+    {
+        foreach (var listener in listeners)
+        {
+            // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable CA1031
+            try
+            {
+                listener.BatchFinally(in context);
+            }
+            catch (Exception)
+            {
+            }
+#pragma warning restore CA1031
+        }
+    }
 }

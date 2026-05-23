@@ -130,6 +130,109 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         data.HasError = false;
     }
 
+    public void BatchNonQueryExecuting(in BatchProfilerExecutingContext context) =>
+        StartBatchActivity(context.EventType, context.Batch);
+
+    public void BatchNonQueryExecuted(in BatchProfilerExecutedContext<int> context)
+    {
+        if (!option.UseResultTag)
+        {
+            return;
+        }
+
+        var data = GetAsyncLocalData();
+        var activity = data.Activity;
+        activity?.SetTag("otel.effect", context.Result);
+    }
+
+    public void BatchReaderExecuting(in BatchProfilerExecutingContext context) =>
+        StartBatchActivity(context.EventType, context.Batch);
+
+    public void BatchReaderExecuted(in BatchProfilerExecutedContext<DbDataReader> context)
+    {
+        if (!option.UseResultTag || (context.Result.RecordsAffected < 0))
+        {
+            return;
+        }
+
+        var data = GetAsyncLocalData();
+        var activity = data.Activity;
+        activity?.SetTag("otel.records", context.Result.RecordsAffected);
+    }
+
+    public void BatchFailed(in BatchProfilerFailedContext context)
+    {
+        var data = GetAsyncLocalData();
+        data.HasError = true;
+
+        var activity = data.Activity;
+        if (activity is null)
+        {
+            return;
+        }
+
+        if (option.UseExceptionTag)
+        {
+            activity.SetTag("data.exception", context.Exception);
+        }
+    }
+
+    public void BatchFinally(in BatchProfilerFinallyContext context)
+    {
+        var data = GetAsyncLocalData();
+        var activity = data.Activity;
+        if (activity is not null)
+        {
+            activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
+            activity.Dispose();
+            data.Activity = null;
+        }
+        data.HasError = false;
+    }
+
+    private void StartBatchActivity(EventType eventType, DbBatch batch)
+    {
+        var activity = activitySource.CreateActivity(eventType.AsString(), ActivityKind.Client);
+
+        var data = GetAsyncLocalData();
+        data.Activity = activity;
+        data.HasError = false;
+        if (activity is null)
+        {
+            return;
+        }
+
+        if (option.UseSqlTag)
+        {
+            activity.SetTag("data.command.text", MakeBatchSqlText(batch));
+        }
+
+        activity.Start();
+    }
+
+    [SkipLocalsInit]
+    private static string MakeBatchSqlText(DbBatch batch)
+    {
+        var handler = new DefaultInterpolatedStringHandler(0, 0, default!, stackalloc char[512]);
+
+        var first = true;
+        foreach (var cmd in batch.BatchCommands)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                handler.AppendLiteral(" | ");
+            }
+
+            handler.AppendLiteral(cmd.CommandText);
+        }
+
+        return handler.ToStringAndClear();
+    }
+
     private void StartActivity(EventType eventType, DbCommand command)
     {
         var activity = activitySource.CreateActivity(eventType.AsString(), ActivityKind.Client);

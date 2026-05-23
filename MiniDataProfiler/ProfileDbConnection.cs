@@ -34,7 +34,7 @@ public sealed class ProfileDbConnection : DbConnection
 
     // TODO Batch
 
-    public override bool CanCreateBatch => false; //con.CanCreateBatch;
+    public override bool CanCreateBatch => con.CanCreateBatch;
 
     public ProfileDbConnection(IProfileListener listener, DbConnection con)
     {
@@ -124,9 +124,9 @@ public sealed class ProfileDbConnection : DbConnection
 
     protected override DbCommand CreateDbCommand() => new ProfileDbCommand(listener, this, con.CreateCommand());
 
-    // TODO Batch
+    // Batch
 
-    protected override DbBatch CreateDbBatch() => throw new NotSupportedException();
+    protected override DbBatch CreateDbBatch() => new ProfileDbBatch(listener, this, con.CreateBatch());
 }
 #pragma warning restore IDE0032
 // ReSharper restore ConvertToAutoProperty

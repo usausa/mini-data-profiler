@@ -19,4 +19,16 @@ public interface IProfileListener
     void CommandFailed(in ProfilerFailedContext context);
 
     void CommandFinally(in ProfilerFinallyContext context);
+
+    void BatchNonQueryExecuting(in BatchProfilerExecutingContext context);
+
+    void BatchNonQueryExecuted(in BatchProfilerExecutedContext<int> context);
+
+    void BatchReaderExecuting(in BatchProfilerExecutingContext context);
+
+    void BatchReaderExecuted(in BatchProfilerExecutedContext<DbDataReader> context);
+
+    void BatchFailed(in BatchProfilerFailedContext context);
+
+    void BatchFinally(in BatchProfilerFinallyContext context);
 }
