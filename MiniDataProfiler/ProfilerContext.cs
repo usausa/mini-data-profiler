@@ -2,6 +2,7 @@ namespace MiniDataProfiler;
 
 using System.Data.Common;
 
+#pragma warning disable CA1815
 public readonly struct ProfilerExecutingContext
 {
     public EventType EventType { get; }
@@ -123,3 +124,4 @@ public readonly struct BatchProfilerFinallyContext
         Batch = batch;
     }
 }
+#pragma warning restore CA1815
