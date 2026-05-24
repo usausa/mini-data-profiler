@@ -277,7 +277,21 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
             handler.AppendLiteral(parameter.ParameterName);
             handler.AppendLiteral("=");
-            handler.AppendFormatted(parameter.Value);
+            switch (parameter.Value)
+            {
+                case null:
+                    handler.AppendLiteral("NULL");
+                    break;
+                case ISpanFormattable sf:
+                    handler.AppendFormatted(sf);
+                    break;
+                case IFormattable f:
+                    handler.AppendLiteral(f.ToString(null, null));
+                    break;
+                default:
+                    handler.AppendLiteral(parameter.Value.ToString() ?? string.Empty);
+                    break;
+            }
         }
 
         return handler.ToStringAndClear();
