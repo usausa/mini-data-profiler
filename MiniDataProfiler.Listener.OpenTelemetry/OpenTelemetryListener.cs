@@ -115,6 +115,8 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         {
             activity.SetTag("exception.message", context.Exception);
         }
+
+        activity.SetTag("db.response.elapsed_ms", (long)context.Duration.TotalMilliseconds);
     }
 
     public void CommandFinally(in ProfilerFinallyContext context)
@@ -175,6 +177,8 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         {
             activity.SetTag("exception.message", context.Exception);
         }
+
+        activity.SetTag("db.response.elapsed_ms", (long)context.Duration.TotalMilliseconds);
     }
 
     public void BatchFinally(in BatchProfilerFinallyContext context)

@@ -12,7 +12,7 @@ public sealed class ProfileDbDataSource : DbDataSource
 
     public ProfileDbDataSource(IProfileListener listener, DbDataSource dataSource)
     {
-        this.listener = listener;
+        this.listener = RootListener.Wrap(listener);
         this.dataSource = dataSource;
     }
 

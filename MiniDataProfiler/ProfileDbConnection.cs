@@ -38,7 +38,7 @@ public sealed class ProfileDbConnection : DbConnection
 
     public ProfileDbConnection(IProfileListener listener, DbConnection con)
     {
-        this.listener = listener;
+        this.listener = RootListener.Wrap(listener);
         this.con = con;
 
         con.StateChange += OnStateChange;

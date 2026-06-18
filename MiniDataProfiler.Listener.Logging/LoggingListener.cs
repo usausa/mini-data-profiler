@@ -156,11 +156,11 @@ public sealed class LoggingListener : IProfileListener
 
         if (option.OutputParameter)
         {
-            log.ErrorExceptionWithParameter(context.EventType.AsString(), context.Command.CommandText, MakeParameterText(context.Command), context.Exception);
+            log.ErrorExceptionWithParameter((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.Command.CommandText, MakeParameterText(context.Command), context.Exception);
         }
         else
         {
-            log.ErrorException(context.EventType.AsString(), context.Command.CommandText, context.Exception);
+            log.ErrorException((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.Command.CommandText, context.Exception);
         }
     }
 
@@ -224,7 +224,7 @@ public sealed class LoggingListener : IProfileListener
             return;
         }
 
-        log.ErrorException(context.EventType.AsString(), MakeBatchSqlText(context.Batch), context.Exception);
+        log.ErrorException((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), MakeBatchSqlText(context.Batch), context.Exception);
     }
 
     public void BatchFinally(in BatchProfilerFinallyContext context)
@@ -327,9 +327,9 @@ internal static partial class Log
     [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}]")]
     public static partial void InfoReaderExecuted(this ILogger logger, long elapsed, string eventType, string sql);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. event=[{eventType}], sql=[{sql}], parameter=[{parameter}]")]
-    public static partial void ErrorExceptionWithParameter(this ILogger logger, string eventType, string sql, string parameter, Exception ex);
+    [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}], parameter=[{parameter}]")]
+    public static partial void ErrorExceptionWithParameter(this ILogger logger, long elapsed, string eventType, string sql, string parameter, Exception ex);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. event=[{eventType}], sql=[{sql}]")]
-    public static partial void ErrorException(this ILogger logger, string eventType, string sql, Exception ex);
+    [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}]")]
+    public static partial void ErrorException(this ILogger logger, long elapsed, string eventType, string sql, Exception ex);
 }

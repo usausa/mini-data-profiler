@@ -78,7 +78,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
         catch (Exception ex)
         {
-            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteNonQuery, this, ex);
+            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteNonQuery, this, ex, Stopwatch.GetElapsedTime(start));
             listener.BatchFailed(in failedContext);
             throw;
         }
@@ -103,7 +103,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
         catch (Exception ex)
         {
-            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteNonQueryAsync, this, ex);
+            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteNonQueryAsync, this, ex, Stopwatch.GetElapsedTime(start));
             listener.BatchFailed(in failedContext);
             throw;
         }
@@ -128,7 +128,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
         catch (Exception ex)
         {
-            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteReader, this, ex);
+            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteReader, this, ex, Stopwatch.GetElapsedTime(start));
             listener.BatchFailed(in failedContext);
             throw;
         }
@@ -153,7 +153,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
         catch (Exception ex)
         {
-            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteReaderAsync, this, ex);
+            var failedContext = new BatchProfilerFailedContext(EventType.BatchExecuteReaderAsync, this, ex, Stopwatch.GetElapsedTime(start));
             listener.BatchFailed(in failedContext);
             throw;
         }

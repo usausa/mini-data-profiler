@@ -43,11 +43,14 @@ public readonly struct ProfilerFailedContext
 
     public Exception Exception { get; }
 
-    public ProfilerFailedContext(EventType eventType, DbCommand command, Exception exception)
+    public TimeSpan Duration { get; }
+
+    public ProfilerFailedContext(EventType eventType, DbCommand command, Exception exception, TimeSpan duration)
     {
         EventType = eventType;
         Command = command;
         Exception = exception;
+        Duration = duration;
     }
 }
 
@@ -104,11 +107,14 @@ public readonly struct BatchProfilerFailedContext
 
     public Exception Exception { get; }
 
-    public BatchProfilerFailedContext(EventType eventType, DbBatch batch, Exception exception)
+    public TimeSpan Duration { get; }
+
+    public BatchProfilerFailedContext(EventType eventType, DbBatch batch, Exception exception, TimeSpan duration)
     {
         EventType = eventType;
         Batch = batch;
         Exception = exception;
+        Duration = duration;
     }
 }
 

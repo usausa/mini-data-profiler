@@ -105,7 +105,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
         }
         catch (Exception ex)
         {
-            var failedContext = new ProfilerFailedContext(EventType.ExecuteNonQuery, this, ex);
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteNonQuery, this, ex, Stopwatch.GetElapsedTime(start));
             listener.CommandFailed(in failedContext);
             throw;
         }
@@ -130,7 +130,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
         }
         catch (Exception ex)
         {
-            var failedContext = new ProfilerFailedContext(EventType.ExecuteNonQueryAsync, this, ex);
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteNonQueryAsync, this, ex, Stopwatch.GetElapsedTime(start));
             listener.CommandFailed(in failedContext);
             throw;
         }
@@ -155,7 +155,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
         }
         catch (Exception ex)
         {
-            var failedContext = new ProfilerFailedContext(EventType.ExecuteScalar, this, ex);
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteScalar, this, ex, Stopwatch.GetElapsedTime(start));
             listener.CommandFailed(in failedContext);
             throw;
         }
@@ -180,7 +180,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
         }
         catch (Exception ex)
         {
-            var failedContext = new ProfilerFailedContext(EventType.ExecuteScalarAsync, this, ex);
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteScalarAsync, this, ex, Stopwatch.GetElapsedTime(start));
             listener.CommandFailed(in failedContext);
             throw;
         }
@@ -205,7 +205,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
         }
         catch (Exception ex)
         {
-            var failedContext = new ProfilerFailedContext(EventType.ExecuteReader, this, ex);
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteReader, this, ex, Stopwatch.GetElapsedTime(start));
             listener.CommandFailed(in failedContext);
             throw;
         }
@@ -230,7 +230,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
         }
         catch (Exception ex)
         {
-            var failedContext = new ProfilerFailedContext(EventType.ExecuteReaderAsync, this, ex);
+            var failedContext = new ProfilerFailedContext(EventType.ExecuteReaderAsync, this, ex, Stopwatch.GetElapsedTime(start));
             listener.CommandFailed(in failedContext);
             throw;
         }
