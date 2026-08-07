@@ -15,6 +15,6 @@
   <Project Path="MiniDataProfiler/MiniDataProfiler.csproj" />
   <Project Path="MiniDataProfiler.Listener.Logging/MiniDataProfiler.Listener.Logging.csproj" />
   <Project Path="MiniDataProfiler.Listener.OpenTelemetry/MiniDataProfiler.Listener.OpenTelemetry.csproj" />
-  <Project Path="Example/Example.csproj" />
+  <Project Path="Example/Example.csproj" DefaultStartup="true" />
   <Project Path="MiniDataProfiler.Tests/MiniDataProfiler.Tests.csproj" />
 </Solution>
