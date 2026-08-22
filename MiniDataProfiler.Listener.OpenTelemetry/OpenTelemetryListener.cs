@@ -22,8 +22,6 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
     {
         public Activity? Activity;
 
-        public Activity? ReaderActivity;
-
         public bool HasError;
     }
 #pragma warning restore SA1401
@@ -31,6 +29,11 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
     private readonly OpenTelemetryListenerOption option;
 
     private readonly ActivitySource activitySource;
+
+    // Activities of commands whose wrapped reader has not been disposed yet, keyed by the command
+    // (or batch) instance. AsyncLocal cannot be used here because the reader is usually disposed
+    // by the caller, outside the async context that executed the command.
+    private readonly ConditionalWeakTable<object, Activity> readerActivities = [];
 
     private static readonly AsyncLocal<AsyncLocalData?> LocalData = new();
 
@@ -125,23 +128,24 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
     {
         var data = GetAsyncLocalData();
         var activity = data.Activity;
+        var hasError = data.HasError;
         data.Activity = null;
+        data.HasError = false;
         if (activity is null)
         {
-            data.HasError = false;
             return;
         }
 
-        if (context.ReaderWrapped && !data.HasError)
+        // The reader is still being consumed. Keep the activity open so that a single span
+        // covers the whole operation, and close it when ReaderFinished arrives.
+        if (context.ReaderWrapped && !hasError)
         {
-            data.ReaderActivity?.Dispose();
-            data.ReaderActivity = activity;
+            readerActivities.AddOrUpdate(context.Command, activity);
             return;
         }
 
-        activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
+        activity.SetStatus(hasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
         activity.Dispose();
-        data.HasError = false;
     }
 
     public void BatchNonQueryExecuting(in BatchProfilerExecutingContext context) =>
@@ -197,41 +201,38 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
     {
         var data = GetAsyncLocalData();
         var activity = data.Activity;
+        var hasError = data.HasError;
         data.Activity = null;
+        data.HasError = false;
         if (activity is null)
         {
-            data.HasError = false;
             return;
         }
 
-        if (context.ReaderWrapped && !data.HasError)
+        if (context.ReaderWrapped && !hasError)
         {
-            data.ReaderActivity?.Dispose();
-            data.ReaderActivity = activity;
+            readerActivities.AddOrUpdate(context.Batch, activity);
             return;
         }
 
-        activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
+        activity.SetStatus(hasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
         activity.Dispose();
-        data.HasError = false;
     }
 
     public void ReaderFinished(in ProfilerReaderFinishedContext context) =>
-        RecordReaderFinished(context.RecordsRead, context.Duration);
+        RecordReaderFinished(context.Command, context.RecordsRead, context.Duration);
 
     public void BatchReaderFinished(in BatchProfilerReaderFinishedContext context) =>
-        RecordReaderFinished(context.RecordsRead, context.Duration);
+        RecordReaderFinished(context.Batch, context.RecordsRead, context.Duration);
 
-    private void RecordReaderFinished(int recordsRead, TimeSpan duration)
+    private void RecordReaderFinished(object key, int recordsRead, TimeSpan duration)
     {
-        var data = GetAsyncLocalData();
-        var activity = data.ReaderActivity;
-        if (activity is null)
+        if (!readerActivities.TryGetValue(key, out var activity))
         {
             return;
         }
 
-        data.ReaderActivity = null;
+        readerActivities.Remove(key);
 
         if (option.UseResultTag)
         {

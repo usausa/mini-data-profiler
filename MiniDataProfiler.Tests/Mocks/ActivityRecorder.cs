@@ -8,11 +8,11 @@ internal sealed class ActivityRecorder : IDisposable
 
     public List<Activity> Activities { get; } = [];
 
-    public ActivityRecorder(string sourceName)
+    public ActivityRecorder(params string[] sourceNames)
     {
         listener = new ActivityListener
         {
-            ShouldListenTo = source => source.Name == sourceName,
+            ShouldListenTo = source => Array.IndexOf(sourceNames, source.Name) >= 0,
             Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
             ActivityStopped = activity => Activities.Add(activity)
         };
