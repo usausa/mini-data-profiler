@@ -60,10 +60,13 @@ public readonly struct ProfilerFinallyContext
 
     public DbCommand Command { get; }
 
-    public ProfilerFinallyContext(EventType eventType, DbCommand command)
+    public bool ReaderWrapped { get; }
+
+    public ProfilerFinallyContext(EventType eventType, DbCommand command, bool readerWrapped = false)
     {
         EventType = eventType;
         Command = command;
+        ReaderWrapped = readerWrapped;
     }
 }
 
@@ -143,10 +146,13 @@ public readonly struct BatchProfilerFinallyContext
 
     public DbBatch Batch { get; }
 
-    public BatchProfilerFinallyContext(EventType eventType, DbBatch batch)
+    public bool ReaderWrapped { get; }
+
+    public BatchProfilerFinallyContext(EventType eventType, DbBatch batch, bool readerWrapped = false)
     {
         EventType = eventType;
         Batch = batch;
+        ReaderWrapped = readerWrapped;
     }
 }
 

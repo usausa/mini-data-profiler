@@ -17,14 +17,16 @@ public sealed class OpenTelemetryListenerOption
 
 public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 {
-#pragma warning disable SA1401 // Fields should be private
+#pragma warning disable SA1401
     private sealed class AsyncLocalData
     {
         public Activity? Activity;
 
+        public Activity? ReaderActivity;
+
         public bool HasError;
     }
-#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore SA1401
 
     private readonly OpenTelemetryListenerOption option;
 
@@ -123,12 +125,22 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
     {
         var data = GetAsyncLocalData();
         var activity = data.Activity;
-        if (activity is not null)
+        data.Activity = null;
+        if (activity is null)
         {
-            activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
-            activity.Dispose();
-            data.Activity = null;
+            data.HasError = false;
+            return;
         }
+
+        if (context.ReaderWrapped && !data.HasError)
+        {
+            data.ReaderActivity?.Dispose();
+            data.ReaderActivity = activity;
+            return;
+        }
+
+        activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
+        activity.Dispose();
         data.HasError = false;
     }
 
@@ -185,37 +197,41 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
     {
         var data = GetAsyncLocalData();
         var activity = data.Activity;
-        if (activity is not null)
+        data.Activity = null;
+        if (activity is null)
         {
-            activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
-            activity.Dispose();
-            data.Activity = null;
+            data.HasError = false;
+            return;
         }
+
+        if (context.ReaderWrapped && !data.HasError)
+        {
+            data.ReaderActivity?.Dispose();
+            data.ReaderActivity = activity;
+            return;
+        }
+
+        activity.SetStatus(data.HasError ? ActivityStatusCode.Error : ActivityStatusCode.Ok);
+        activity.Dispose();
         data.HasError = false;
     }
 
     public void ReaderFinished(in ProfilerReaderFinishedContext context) =>
-        RecordReaderFinished(context.EventType, option.UseSqlTag ? context.Command.CommandText : null, context.RecordsRead, context.Duration);
+        RecordReaderFinished(context.RecordsRead, context.Duration);
 
     public void BatchReaderFinished(in BatchProfilerReaderFinishedContext context) =>
-        RecordReaderFinished(context.EventType, option.UseSqlTag ? MakeBatchSqlText(context.Batch) : null, context.RecordsRead, context.Duration);
+        RecordReaderFinished(context.RecordsRead, context.Duration);
 
-    private void RecordReaderFinished(EventType eventType, string? sql, int recordsRead, TimeSpan duration)
+    private void RecordReaderFinished(int recordsRead, TimeSpan duration)
     {
-        var activity = activitySource.CreateActivity(eventType.AsString(), ActivityKind.Client);
+        var data = GetAsyncLocalData();
+        var activity = data.ReaderActivity;
         if (activity is null)
         {
             return;
         }
 
-        var endTime = DateTime.UtcNow;
-        activity.SetStartTime(endTime - duration);
-        activity.Start();
-
-        if (sql is not null)
-        {
-            activity.SetTag("db.query.text", sql);
-        }
+        data.ReaderActivity = null;
 
         if (option.UseResultTag)
         {
@@ -223,8 +239,8 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         }
 
         activity.SetTag("db.response.elapsed_ms", (long)duration.TotalMilliseconds);
-        activity.SetEndTime(endTime);
-        activity.Stop();
+        activity.SetStatus(ActivityStatusCode.Ok);
+        activity.Dispose();
     }
 
     private void StartBatchActivity(EventType eventType, DbBatch batch)

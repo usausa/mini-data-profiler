@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MiniDataProfiler\MiniDataProfiler.csproj" />
+    <ProjectReference Include="..\MiniDataProfiler.Listener.OpenTelemetry\MiniDataProfiler.Listener.OpenTelemetry.csproj" />
   </ItemGroup>
 
 </Project>
