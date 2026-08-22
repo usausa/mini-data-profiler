@@ -13,6 +13,8 @@ public sealed class ProfileDbConnection : DbConnection
 
     private readonly DbConnection con;
 
+    private readonly bool wrapReader;
+
     public DbConnection InnerConnection => con;
 
     [AllowNull]
@@ -32,14 +34,18 @@ public sealed class ProfileDbConnection : DbConnection
 
     public override ConnectionState State => con.State;
 
-    // TODO Batch
-
     public override bool CanCreateBatch => con.CanCreateBatch;
 
     public ProfileDbConnection(IProfileListener listener, DbConnection con)
+        : this(listener, con, null)
+    {
+    }
+
+    public ProfileDbConnection(IProfileListener listener, DbConnection con, ProfilerOption? option)
     {
         this.listener = RootListener.Wrap(listener);
         this.con = con;
+        wrapReader = option?.WrapDataReader ?? false;
 
         con.StateChange += OnStateChange;
     }
@@ -122,11 +128,11 @@ public sealed class ProfileDbConnection : DbConnection
 
     // Command
 
-    protected override DbCommand CreateDbCommand() => new ProfileDbCommand(listener, this, con.CreateCommand());
+    protected override DbCommand CreateDbCommand() => new ProfileDbCommand(listener, this, con.CreateCommand(), wrapReader);
 
     // Batch
 
-    protected override DbBatch CreateDbBatch() => new ProfileDbBatch(listener, this, con.CreateBatch());
+    protected override DbBatch CreateDbBatch() => new ProfileDbBatch(listener, this, con.CreateBatch(), wrapReader);
 }
 #pragma warning restore IDE0032
 // ReSharper restore ConvertToAutoProperty

@@ -194,6 +194,39 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
         data.HasError = false;
     }
 
+    public void ReaderFinished(in ProfilerReaderFinishedContext context) =>
+        RecordReaderFinished(context.EventType, option.UseSqlTag ? context.Command.CommandText : null, context.RecordsRead, context.Duration);
+
+    public void BatchReaderFinished(in BatchProfilerReaderFinishedContext context) =>
+        RecordReaderFinished(context.EventType, option.UseSqlTag ? MakeBatchSqlText(context.Batch) : null, context.RecordsRead, context.Duration);
+
+    private void RecordReaderFinished(EventType eventType, string? sql, int recordsRead, TimeSpan duration)
+    {
+        var activity = activitySource.CreateActivity(eventType.AsString(), ActivityKind.Client);
+        if (activity is null)
+        {
+            return;
+        }
+
+        var endTime = DateTime.UtcNow;
+        activity.SetStartTime(endTime - duration);
+        activity.Start();
+
+        if (sql is not null)
+        {
+            activity.SetTag("db.query.text", sql);
+        }
+
+        if (option.UseResultTag)
+        {
+            activity.SetTag("db.response.rows_read", recordsRead);
+        }
+
+        activity.SetTag("db.response.elapsed_ms", (long)duration.TotalMilliseconds);
+        activity.SetEndTime(endTime);
+        activity.Stop();
+    }
+
     private void StartBatchActivity(EventType eventType, DbBatch batch)
     {
         var activity = activitySource.CreateActivity(eventType.AsString(), ActivityKind.Client);

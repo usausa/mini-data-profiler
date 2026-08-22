@@ -1,10 +1,6 @@
-namespace MiniDataProfiler;
+namespace MiniDataProfiler.Mocks;
 
 using System.Data.Common;
-
-// ------------------------------------------------------------
-// RecordingListener
-// ------------------------------------------------------------
 
 internal sealed class RecordingListener : IProfileListener
 {
@@ -19,6 +15,12 @@ internal sealed class RecordingListener : IProfileListener
     public TimeSpan LastFailedDuration { get; private set; }
 
     public Exception? LastFailedException { get; private set; }
+
+    public int LastRecordsRead { get; private set; }
+
+    public TimeSpan LastReaderFinishedDuration { get; private set; }
+
+    public EventType LastReaderFinishedEventType { get; private set; }
 
     public void NonQueryExecuting(in ProfilerExecutingContext context) => Events.Add(nameof(IProfileListener.NonQueryExecuting));
 
@@ -55,6 +57,14 @@ internal sealed class RecordingListener : IProfileListener
 
     public void CommandFinally(in ProfilerFinallyContext context) => Events.Add(nameof(IProfileListener.CommandFinally));
 
+    public void ReaderFinished(in ProfilerReaderFinishedContext context)
+    {
+        Events.Add(nameof(IProfileListener.ReaderFinished));
+        LastRecordsRead = context.RecordsRead;
+        LastReaderFinishedDuration = context.Duration;
+        LastReaderFinishedEventType = context.EventType;
+    }
+
     public void BatchNonQueryExecuting(in BatchProfilerExecutingContext context) => Events.Add(nameof(IProfileListener.BatchNonQueryExecuting));
 
     public void BatchNonQueryExecuted(in BatchProfilerExecutedContext<int> context)
@@ -80,48 +90,12 @@ internal sealed class RecordingListener : IProfileListener
     }
 
     public void BatchFinally(in BatchProfilerFinallyContext context) => Events.Add(nameof(IProfileListener.BatchFinally));
-}
 
-// ------------------------------------------------------------
-// ThrowingListener
-// ------------------------------------------------------------
-
-internal sealed class ThrowingListener : IProfileListener
-{
-    public void NonQueryExecuting(in ProfilerExecutingContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void NonQueryExecuted(in ProfilerExecutedContext<int> context) => throw new InvalidOperationException("ThrowingListener");
-    public void ScalarExecuting(in ProfilerExecutingContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void ScalarExecuted(in ProfilerExecutedContext<object?> context) => throw new InvalidOperationException("ThrowingListener");
-    public void ReaderExecuting(in ProfilerExecutingContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void ReaderExecuted(in ProfilerExecutedContext<DbDataReader> context) => throw new InvalidOperationException("ThrowingListener");
-    public void CommandFailed(in ProfilerFailedContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void CommandFinally(in ProfilerFinallyContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void BatchNonQueryExecuting(in BatchProfilerExecutingContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void BatchNonQueryExecuted(in BatchProfilerExecutedContext<int> context) => throw new InvalidOperationException("ThrowingListener");
-    public void BatchReaderExecuting(in BatchProfilerExecutingContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void BatchReaderExecuted(in BatchProfilerExecutedContext<DbDataReader> context) => throw new InvalidOperationException("ThrowingListener");
-    public void BatchFailed(in BatchProfilerFailedContext context) => throw new InvalidOperationException("ThrowingListener");
-    public void BatchFinally(in BatchProfilerFinallyContext context) => throw new InvalidOperationException("ThrowingListener");
-}
-
-// ------------------------------------------------------------
-// FakeDbDataSource
-// ------------------------------------------------------------
-
-internal sealed class FakeDbDataSource : DbDataSource
-{
-    private readonly string connectionString;
-
-    public override string ConnectionString => connectionString;
-
-    public FakeDbDataSource(string connectionString)
+    public void BatchReaderFinished(in BatchProfilerReaderFinishedContext context)
     {
-        this.connectionString = connectionString;
-    }
-
-    protected override DbConnection CreateDbConnection()
-    {
-        var con = new Microsoft.Data.Sqlite.SqliteConnection(connectionString);
-        return con;
+        Events.Add(nameof(IProfileListener.BatchReaderFinished));
+        LastRecordsRead = context.RecordsRead;
+        LastReaderFinishedDuration = context.Duration;
+        LastReaderFinishedEventType = context.EventType;
     }
 }

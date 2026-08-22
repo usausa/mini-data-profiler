@@ -10,6 +10,8 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
 
     private readonly DbBatch batch;
 
+    private readonly bool wrapReader;
+
     // ReSharper disable once ReplaceWithFieldKeyword
     private DbConnection? con;
 
@@ -44,10 +46,11 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
     }
 
-    public ProfileDbDataSourceBatch(IProfileListener listener, DbBatch batch)
+    public ProfileDbDataSourceBatch(IProfileListener listener, DbBatch batch, bool wrapReader)
     {
         this.listener = listener;
         this.batch = batch;
+        this.wrapReader = wrapReader;
     }
 
     public override void Dispose()
@@ -124,7 +127,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
             var reader = batch.ExecuteReader(behavior);
             var executedContext = new BatchProfilerExecutedContext<DbDataReader>(EventType.BatchExecuteReader, this, reader, Stopwatch.GetElapsedTime(start));
             listener.BatchReaderExecuted(in executedContext);
-            return reader;
+            return Wrap(reader, EventType.BatchExecuteReader, start);
         }
         catch (Exception ex)
         {
@@ -149,7 +152,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
             var reader = await batch.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
             var executedContext = new BatchProfilerExecutedContext<DbDataReader>(EventType.BatchExecuteReaderAsync, this, reader, Stopwatch.GetElapsedTime(start));
             listener.BatchReaderExecuted(in executedContext);
-            return reader;
+            return Wrap(reader, EventType.BatchExecuteReaderAsync, start);
         }
         catch (Exception ex)
         {
@@ -164,6 +167,9 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
     }
 
+    private DbDataReader Wrap(DbDataReader reader, EventType eventType, long start) =>
+        wrapReader ? new ProfileBatchDbDataReader(listener, this, reader, eventType, start) : reader;
+
     // Operation
 
     public override void Cancel() => batch.Cancel();
@@ -176,5 +182,5 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
 
     public override Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken = default) => batch.ExecuteScalarAsync(cancellationToken);
 
-    protected override DbBatchCommand CreateDbBatchCommand() => new ProfileDbBatchCommand(batch.CreateBatchCommand());
+    protected override DbBatchCommand CreateDbBatchCommand() => batch.CreateBatchCommand();
 }

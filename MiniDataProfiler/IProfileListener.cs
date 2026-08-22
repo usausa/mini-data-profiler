@@ -20,6 +20,8 @@ public interface IProfileListener
 
     void CommandFinally(in ProfilerFinallyContext context);
 
+    void ReaderFinished(in ProfilerReaderFinishedContext context);
+
     void BatchNonQueryExecuting(in BatchProfilerExecutingContext context);
 
     void BatchNonQueryExecuted(in BatchProfilerExecutedContext<int> context);
@@ -31,4 +33,6 @@ public interface IProfileListener
     void BatchFailed(in BatchProfilerFailedContext context);
 
     void BatchFinally(in BatchProfilerFinallyContext context);
+
+    void BatchReaderFinished(in BatchProfilerReaderFinishedContext context);
 }

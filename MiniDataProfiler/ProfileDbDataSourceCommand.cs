@@ -11,6 +11,8 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
 
     private readonly DbCommand cmd;
 
+    private readonly bool wrapReader;
+
     // ReSharper disable once ReplaceWithFieldKeyword
     private DbConnection? con;
 
@@ -73,10 +75,11 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
         }
     }
 
-    public ProfileDbDataSourceCommand(IProfileListener listener, DbCommand cmd)
+    public ProfileDbDataSourceCommand(IProfileListener listener, DbCommand cmd, bool wrapReader)
     {
         this.listener = listener;
         this.cmd = cmd;
+        this.wrapReader = wrapReader;
     }
 
     protected override void Dispose(bool disposing)
@@ -201,7 +204,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
             var reader = cmd.ExecuteReader(behavior);
             var executedContext = new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReader, this, reader, Stopwatch.GetElapsedTime(start));
             listener.ReaderExecuted(in executedContext);
-            return reader;
+            return Wrap(reader, EventType.ExecuteReader, start);
         }
         catch (Exception ex)
         {
@@ -226,7 +229,7 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
             var reader = await cmd.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
             var executedContext = new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReaderAsync, this, reader, Stopwatch.GetElapsedTime(start));
             listener.ReaderExecuted(in executedContext);
-            return reader;
+            return Wrap(reader, EventType.ExecuteReaderAsync, start);
         }
         catch (Exception ex)
         {
@@ -240,6 +243,9 @@ internal sealed class ProfileDbDataSourceCommand : DbCommand
             listener.CommandFinally(in finallyContext);
         }
     }
+
+    private DbDataReader Wrap(DbDataReader reader, EventType eventType, long start) =>
+        wrapReader ? new ProfileCommandDbDataReader(listener, this, reader, eventType, start) : reader;
 
     // Operation
 

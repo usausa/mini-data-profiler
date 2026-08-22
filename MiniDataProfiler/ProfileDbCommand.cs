@@ -12,6 +12,8 @@ internal sealed class ProfileDbCommand : DbCommand
 
     private readonly DbCommand cmd;
 
+    private readonly bool wrapReader;
+
     private DbConnection? con;
 
     private DbTransaction? tx;
@@ -72,11 +74,12 @@ internal sealed class ProfileDbCommand : DbCommand
         }
     }
 
-    public ProfileDbCommand(IProfileListener listener, ProfileDbConnection con, DbCommand cmd)
+    public ProfileDbCommand(IProfileListener listener, ProfileDbConnection con, DbCommand cmd, bool wrapReader)
     {
         this.listener = listener;
         this.con = con;
         this.cmd = cmd;
+        this.wrapReader = wrapReader;
 
         cmd.Connection = con.InnerConnection;
     }
@@ -206,13 +209,12 @@ internal sealed class ProfileDbCommand : DbCommand
         var start = Stopwatch.GetTimestamp();
         try
         {
-            // TODO wrap reader
             var reader = cmd.ExecuteReader(behavior);
 
             var executedContext = new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReader, this, reader, Stopwatch.GetElapsedTime(start));
             listener.ReaderExecuted(in executedContext);
 
-            return reader;
+            return Wrap(reader, EventType.ExecuteReader, start);
         }
         catch (Exception ex)
         {
@@ -234,13 +236,12 @@ internal sealed class ProfileDbCommand : DbCommand
         var start = Stopwatch.GetTimestamp();
         try
         {
-            // TODO wrap reader
             var reader = await cmd.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
 
             var executedContext = new ProfilerExecutedContext<DbDataReader>(EventType.ExecuteReaderAsync, this, reader, Stopwatch.GetElapsedTime(start));
             listener.ReaderExecuted(in executedContext);
 
-            return reader;
+            return Wrap(reader, EventType.ExecuteReaderAsync, start);
         }
         catch (Exception ex)
         {
@@ -254,6 +255,9 @@ internal sealed class ProfileDbCommand : DbCommand
             listener.CommandFinally(in finallyContext);
         }
     }
+
+    private DbDataReader Wrap(DbDataReader reader, EventType eventType, long start) =>
+        wrapReader ? new ProfileCommandDbDataReader(listener, this, reader, eventType, start) : reader;
 
     // Operation
 

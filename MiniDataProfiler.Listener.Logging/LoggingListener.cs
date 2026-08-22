@@ -169,6 +169,23 @@ public sealed class LoggingListener : IProfileListener
         // Do Nothing
     }
 
+    public void ReaderFinished(in ProfilerReaderFinishedContext context)
+    {
+        if (!option.OutputFinallyLog || (context.Duration < option.ElapsedThreshold))
+        {
+            return;
+        }
+
+        if (option.OutputParameter)
+        {
+            log.InfoReaderFinishedWithParameter((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.RecordsRead, context.Command.CommandText, MakeParameterText(context.Command));
+        }
+        else
+        {
+            log.InfoReaderFinished((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.RecordsRead, context.Command.CommandText);
+        }
+    }
+
     public void BatchNonQueryExecuting(in BatchProfilerExecutingContext context)
     {
         if (!option.OutputStartLog)
@@ -230,6 +247,16 @@ public sealed class LoggingListener : IProfileListener
     public void BatchFinally(in BatchProfilerFinallyContext context)
     {
         // Do Nothing
+    }
+
+    public void BatchReaderFinished(in BatchProfilerReaderFinishedContext context)
+    {
+        if (!option.OutputFinallyLog || (context.Duration < option.ElapsedThreshold))
+        {
+            return;
+        }
+
+        log.InfoReaderFinished((long)context.Duration.TotalMilliseconds, context.EventType.AsString(), context.RecordsRead, MakeBatchSqlText(context.Batch));
     }
 
     [SkipLocalsInit]
@@ -326,6 +353,12 @@ internal static partial class Log
 
     [LoggerMessage(Level = LogLevel.Information, Message = "SQL executed. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}]")]
     public static partial void InfoReaderExecuted(this ILogger logger, long elapsed, string eventType, string sql);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Reader finished. elapsed=[{elapsed}], event=[{eventType}], records=[{records}], sql=[{sql}], parameter=[{parameter}]")]
+    public static partial void InfoReaderFinishedWithParameter(this ILogger logger, long elapsed, string eventType, int records, string sql, string parameter);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Reader finished. elapsed=[{elapsed}], event=[{eventType}], records=[{records}], sql=[{sql}]")]
+    public static partial void InfoReaderFinished(this ILogger logger, long elapsed, string eventType, int records, string sql);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "SQL exception. elapsed=[{elapsed}], event=[{eventType}], sql=[{sql}], parameter=[{parameter}]")]
     public static partial void ErrorExceptionWithParameter(this ILogger logger, long elapsed, string eventType, string sql, string parameter, Exception ex);

@@ -67,6 +67,25 @@ public readonly struct ProfilerFinallyContext
     }
 }
 
+public readonly struct ProfilerReaderFinishedContext
+{
+    public EventType EventType { get; }
+
+    public DbCommand Command { get; }
+
+    public int RecordsRead { get; }
+
+    public TimeSpan Duration { get; }
+
+    public ProfilerReaderFinishedContext(EventType eventType, DbCommand command, int recordsRead, TimeSpan duration)
+    {
+        EventType = eventType;
+        Command = command;
+        RecordsRead = recordsRead;
+        Duration = duration;
+    }
+}
+
 public readonly struct BatchProfilerExecutingContext
 {
     public EventType EventType { get; }
@@ -128,6 +147,25 @@ public readonly struct BatchProfilerFinallyContext
     {
         EventType = eventType;
         Batch = batch;
+    }
+}
+
+public readonly struct BatchProfilerReaderFinishedContext
+{
+    public EventType EventType { get; }
+
+    public DbBatch Batch { get; }
+
+    public int RecordsRead { get; }
+
+    public TimeSpan Duration { get; }
+
+    public BatchProfilerReaderFinishedContext(EventType eventType, DbBatch batch, int recordsRead, TimeSpan duration)
+    {
+        EventType = eventType;
+        Batch = batch;
+        RecordsRead = recordsRead;
+        Duration = duration;
     }
 }
 #pragma warning restore CA1815

@@ -6,15 +6,20 @@ public sealed class DataSourceTests
 {
     private static ProfileDbDataSource CreateDataSource(IProfileListener listener)
     {
+#pragma warning disable CA2000
         var fake = new FakeDbDataSource("Data Source=:memory:");
+#pragma warning restore CA2000
         return new ProfileDbDataSource(listener, fake);
     }
 
-    // CreateConnection() path
+    //--------------------------------------------------------------------------------
+    // Connection
+    //--------------------------------------------------------------------------------
 
     [Fact]
-    public void CreateConnection_NonQuerySync_EventsAndResult()
+    public void CreateConnectionNonQuerySyncEventsAndResult()
     {
+        // Arrange
         var listener = new RecordingListener();
         using var ds = CreateDataSource(listener);
 
@@ -26,28 +31,30 @@ public sealed class DataSourceTests
         setup.ExecuteNonQuery();
 
         listener.Events.Clear();
+
+        // Act
         using var cmd = con.CreateCommand();
         cmd.CommandText = "INSERT INTO t VALUES (2, 'world')";
         var result = cmd.ExecuteNonQuery();
 
+        // Assert
         Assert.Equal(1, result);
         Assert.Contains(nameof(IProfileListener.NonQueryExecuting), listener.Events);
         Assert.Contains(nameof(IProfileListener.NonQueryExecuted), listener.Events);
         Assert.Contains(nameof(IProfileListener.CommandFinally), listener.Events);
     }
 
-    // CreateCommand() path - ProfileDbDataSourceCommand
+    //--------------------------------------------------------------------------------
+    // Command
+    //--------------------------------------------------------------------------------
 
     [Fact]
-    public void DataSourceCommand_NonQuerySync_EventsAndResult()
+    public void DataSourceCommandNonQuerySyncEventsAndResult()
     {
+        // Arrange
         var listener = new RecordingListener();
         using var ds = CreateDataSource(listener);
 
-        // The DataSource-level command needs a connection to execute against.
-        // ProfileDbDataSource.CreateCommand() returns a ProfileDbDataSourceCommand
-        // that wraps the inner DataSource's command. The inner command from FakeDbDataSource
-        // has no connection attached, so we open a connection and set it explicitly.
         using var innerCon = new SqliteConnection("Data Source=:memory:");
         innerCon.Open();
 
@@ -55,23 +62,21 @@ public sealed class DataSourceTests
         setup.CommandText = "CREATE TABLE t2 (id INTEGER, val TEXT)";
         setup.ExecuteNonQuery();
 
-        listener.Events.Clear();
+        using var profileCon = ds.CreateConnection();
+        profileCon.Open();
 
-        // We need to manually create a ProfileDbDataSourceCommand wrapping an inner command
-        // that has the connection set. Create via CreateConnection + CreateCommand pattern.
-        using var profilCon = ds.CreateConnection();
-        profilCon.Open();
-
-        using var createTable = profilCon.CreateCommand();
+        using var createTable = profileCon.CreateCommand();
         createTable.CommandText = "CREATE TABLE dstest (id INTEGER, val TEXT)";
         createTable.ExecuteNonQuery();
 
         listener.Events.Clear();
 
-        using var cmd = profilCon.CreateCommand();
+        // Act
+        using var cmd = profileCon.CreateCommand();
         cmd.CommandText = "INSERT INTO dstest VALUES (1, 'data')";
         var result = cmd.ExecuteNonQuery();
 
+        // Assert
         Assert.Equal(1, result);
         Assert.Contains(nameof(IProfileListener.NonQueryExecuting), listener.Events);
         Assert.Contains(nameof(IProfileListener.NonQueryExecuted), listener.Events);
@@ -79,8 +84,9 @@ public sealed class DataSourceTests
     }
 
     [Fact]
-    public void DataSourceCommand_ScalarSync_EventsAndResult()
+    public void DataSourceCommandScalarSyncEventsAndResult()
     {
+        // Arrange
         var listener = new RecordingListener();
         using var ds = CreateDataSource(listener);
 
@@ -93,18 +99,21 @@ public sealed class DataSourceTests
 
         listener.Events.Clear();
 
+        // Act
         using var cmd = con.CreateCommand();
         cmd.CommandText = "SELECT val FROM sc WHERE id = 1";
         var result = cmd.ExecuteScalar();
 
+        // Assert
         Assert.Equal("hello", result);
         Assert.Contains(nameof(IProfileListener.ScalarExecuting), listener.Events);
         Assert.Contains(nameof(IProfileListener.ScalarExecuted), listener.Events);
     }
 
     [Fact]
-    public void DataSourceCommand_ReaderSync_EventsAndResult()
+    public void DataSourceCommandReaderSyncEventsAndResult()
     {
+        // Arrange
         var listener = new RecordingListener();
         using var ds = CreateDataSource(listener);
 
@@ -117,20 +126,23 @@ public sealed class DataSourceTests
 
         listener.Events.Clear();
 
+        // Act
         using var cmd = con.CreateCommand();
         cmd.CommandText = "SELECT id, val FROM rd WHERE id = 1";
         using var reader = cmd.ExecuteReader();
+
+        // Assert
         Assert.True(reader.Read());
         Assert.Equal(1L, reader.GetInt64(0));
         Assert.Equal("hello", reader.GetString(1));
-
         Assert.Contains(nameof(IProfileListener.ReaderExecuting), listener.Events);
         Assert.Contains(nameof(IProfileListener.ReaderExecuted), listener.Events);
     }
 
     [Fact]
-    public void DataSourceCommand_Failed_EventsAndDuration()
+    public void DataSourceCommandFailedEventsAndDuration()
     {
+        // Arrange
         var listener = new RecordingListener();
         using var ds = CreateDataSource(listener);
 
@@ -142,7 +154,8 @@ public sealed class DataSourceTests
         using var cmd = con.CreateCommand();
         cmd.CommandText = "SELECT * FROM nonexistent_table";
 
-        Assert.Throws<SqliteException>(() => cmd.ExecuteScalar());
+        // Act & Assert
+        Assert.Throws<SqliteException>(cmd.ExecuteScalar);
 
         Assert.Contains(nameof(IProfileListener.ScalarExecuting), listener.Events);
         Assert.Contains(nameof(IProfileListener.CommandFailed), listener.Events);
@@ -152,24 +165,27 @@ public sealed class DataSourceTests
     }
 
     [Fact]
-    public async Task DataSourceCommand_ScalarAsync_EventsAndResult()
+    public async Task DataSourceCommandScalarAsyncEventsAndResult()
     {
+        // Arrange
         var listener = new RecordingListener();
-        using var ds = CreateDataSource(listener);
+        await using var ds = CreateDataSource(listener);
 
-        using var con = ds.CreateConnection();
-        con.Open();
+        await using var con = ds.CreateConnection();
+        await con.OpenAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
 
-        using var setup = con.CreateCommand();
+        await using var setup = con.CreateCommand();
         setup.CommandText = "CREATE TABLE sca (id INTEGER, val TEXT); INSERT INTO sca VALUES (1, 'async')";
-        setup.ExecuteNonQuery();
+        await setup.ExecuteNonQueryAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
 
         listener.Events.Clear();
 
-        using var cmd = con.CreateCommand();
+        // Act
+        await using var cmd = con.CreateCommand();
         cmd.CommandText = "SELECT val FROM sca WHERE id = 1";
         var result = await cmd.ExecuteScalarAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
 
+        // Assert
         Assert.Equal("async", result);
         Assert.Contains(nameof(IProfileListener.ScalarExecuting), listener.Events);
         Assert.Contains(nameof(IProfileListener.ScalarExecuted), listener.Events);

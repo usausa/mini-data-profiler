@@ -1,4 +1,14 @@
 <Solution>
+  <Folder Name="/Example/">
+    <Project Path="Example.Api/Example.Api.csproj" />
+    <Project Path="Example.AppHost/Example.AppHost.csproj" />
+    <Project Path="Example.Batch/Example.Batch.csproj" />
+  </Folder>
+  <Folder Name="/Library/">
+    <Project Path="MiniDataProfiler.Listener.Logging/MiniDataProfiler.Listener.Logging.csproj" />
+    <Project Path="MiniDataProfiler.Listener.OpenTelemetry/MiniDataProfiler.Listener.OpenTelemetry.csproj" />
+    <Project Path="MiniDataProfiler/MiniDataProfiler.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
@@ -12,9 +22,7 @@
     <File Path="MiniDataProfiler.sln.DotSettings" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="MiniDataProfiler/MiniDataProfiler.csproj" />
-  <Project Path="MiniDataProfiler.Listener.Logging/MiniDataProfiler.Listener.Logging.csproj" />
-  <Project Path="MiniDataProfiler.Listener.OpenTelemetry/MiniDataProfiler.Listener.OpenTelemetry.csproj" />
-  <Project Path="Example/Example.csproj" DefaultStartup="true" />
-  <Project Path="MiniDataProfiler.Tests/MiniDataProfiler.Tests.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="MiniDataProfiler.Tests/MiniDataProfiler.Tests.csproj" />
+  </Folder>
 </Solution>
