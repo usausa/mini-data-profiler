@@ -10,7 +10,7 @@ public sealed class SqliteDbDataSource : DbDataSource
 
     public SqliteDbDataSource(string connectionString)
     {
-        this.ConnectionString = connectionString;
+        ConnectionString = connectionString;
     }
 
     protected override DbConnection CreateDbConnection() => new SqliteConnection(ConnectionString);
