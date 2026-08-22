@@ -55,13 +55,6 @@ public sealed class DataSourceTests
         var listener = new RecordingListener();
         using var ds = CreateDataSource(listener);
 
-        using var innerCon = new SqliteConnection("Data Source=:memory:");
-        innerCon.Open();
-
-        using var setup = innerCon.CreateCommand();
-        setup.CommandText = "CREATE TABLE t2 (id INTEGER, val TEXT)";
-        setup.ExecuteNonQuery();
-
         using var profileCon = ds.CreateConnection();
         profileCon.Open();
 
