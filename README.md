@@ -44,3 +44,21 @@ var listener = new ChainListener(logListener, new OpenTelemetryListener(new Open
 using var con = new ProfileDbConnection(listener, new SqliteConnection(connectionString));
 ...
 ```
+
+## Options
+
+### WrapDataReader
+
+Wraps the returned `DbDataReader` and raises `ReaderFinished` (`BatchReaderFinished` for `DbBatch`) on dispose with the rows read and elapsed time.
+Defaults to `false` because wrapping breaks provider specific casts such as `(NpgsqlDataReader)reader`.
+
+```csharp
+using var con = new ProfileDbConnection(
+    listener,
+    new SqliteConnection(connectionString),
+    new ProfilerOption { WrapDataReader = true });
+```
+
+```
+ReaderExecuting -> ReaderExecuted -> CommandFinally -> ReaderFinished
+```
