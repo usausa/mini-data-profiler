@@ -1,3 +1,4 @@
+// ReSharper disable ExplicitCallerInfoArgument
 namespace MiniDataProfiler;
 
 using System.Diagnostics;
@@ -104,8 +105,6 @@ public sealed class OpenTelemetryListenerTests
         Assert.Equal(3, sql.GetTagItem("db.response.rows_read"));
     }
 
-    // Executes and consumes the reader in a nested async method, so that the reader is disposed
-    // outside the async context that ran the command.
     private static async Task ReadAllAsync(ProfileDbConnection con)
     {
 #pragma warning disable CA2007
@@ -225,6 +224,6 @@ public sealed class OpenTelemetryListenerTests
         Assert.Throws<SqliteException>(cmd.ExecuteReader);
 
         var activity = Assert.Single(recorder.Activities);
-        Assert.Equal(System.Diagnostics.ActivityStatusCode.Error, activity.Status);
+        Assert.Equal(ActivityStatusCode.Error, activity.Status);
     }
 }
