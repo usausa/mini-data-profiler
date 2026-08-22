@@ -60,13 +60,13 @@ public readonly struct ProfilerFinallyContext
 
     public DbCommand Command { get; }
 
-    public bool ReaderWrapped { get; }
+    public IProfilerReaderState? Reader { get; }
 
-    public ProfilerFinallyContext(EventType eventType, DbCommand command, bool readerWrapped = false)
+    public ProfilerFinallyContext(EventType eventType, DbCommand command, IProfilerReaderState? reader = null)
     {
         EventType = eventType;
         Command = command;
-        ReaderWrapped = readerWrapped;
+        Reader = reader;
     }
 }
 
@@ -76,14 +76,17 @@ public readonly struct ProfilerReaderFinishedContext
 
     public DbCommand Command { get; }
 
+    public IProfilerReaderState Reader { get; }
+
     public int RecordsRead { get; }
 
     public TimeSpan Duration { get; }
 
-    public ProfilerReaderFinishedContext(EventType eventType, DbCommand command, int recordsRead, TimeSpan duration)
+    public ProfilerReaderFinishedContext(EventType eventType, DbCommand command, IProfilerReaderState reader, int recordsRead, TimeSpan duration)
     {
         EventType = eventType;
         Command = command;
+        Reader = reader;
         RecordsRead = recordsRead;
         Duration = duration;
     }
@@ -146,13 +149,13 @@ public readonly struct BatchProfilerFinallyContext
 
     public DbBatch Batch { get; }
 
-    public bool ReaderWrapped { get; }
+    public IProfilerReaderState? Reader { get; }
 
-    public BatchProfilerFinallyContext(EventType eventType, DbBatch batch, bool readerWrapped = false)
+    public BatchProfilerFinallyContext(EventType eventType, DbBatch batch, IProfilerReaderState? reader = null)
     {
         EventType = eventType;
         Batch = batch;
-        ReaderWrapped = readerWrapped;
+        Reader = reader;
     }
 }
 
@@ -162,14 +165,17 @@ public readonly struct BatchProfilerReaderFinishedContext
 
     public DbBatch Batch { get; }
 
+    public IProfilerReaderState Reader { get; }
+
     public int RecordsRead { get; }
 
     public TimeSpan Duration { get; }
 
-    public BatchProfilerReaderFinishedContext(EventType eventType, DbBatch batch, int recordsRead, TimeSpan duration)
+    public BatchProfilerReaderFinishedContext(EventType eventType, DbBatch batch, IProfilerReaderState reader, int recordsRead, TimeSpan duration)
     {
         EventType = eventType;
         Batch = batch;
+        Reader = reader;
         RecordsRead = recordsRead;
         Duration = duration;
     }
