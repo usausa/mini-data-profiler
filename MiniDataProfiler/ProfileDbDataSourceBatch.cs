@@ -122,14 +122,14 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         var executingContext = new BatchProfilerExecutingContext(EventType.BatchExecuteReader, this);
         listener.BatchReaderExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
-        var wrapped = false;
+        IProfilerReaderState? readerState = null;
         try
         {
             var reader = batch.ExecuteReader(behavior);
             var executedContext = new BatchProfilerExecutedContext<DbDataReader>(EventType.BatchExecuteReader, this, reader, Stopwatch.GetElapsedTime(start));
             listener.BatchReaderExecuted(in executedContext);
             var result = Wrap(reader, EventType.BatchExecuteReader, start);
-            wrapped = wrapReader;
+            readerState = result as IProfilerReaderState;
             return result;
         }
         catch (Exception ex)
@@ -140,7 +140,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
         finally
         {
-            var finallyContext = new BatchProfilerFinallyContext(EventType.BatchExecuteReader, this, wrapped);
+            var finallyContext = new BatchProfilerFinallyContext(EventType.BatchExecuteReader, this, readerState);
             listener.BatchFinally(in finallyContext);
         }
     }
@@ -150,14 +150,14 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         var executingContext = new BatchProfilerExecutingContext(EventType.BatchExecuteReaderAsync, this);
         listener.BatchReaderExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
-        var wrapped = false;
+        IProfilerReaderState? readerState = null;
         try
         {
             var reader = await batch.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
             var executedContext = new BatchProfilerExecutedContext<DbDataReader>(EventType.BatchExecuteReaderAsync, this, reader, Stopwatch.GetElapsedTime(start));
             listener.BatchReaderExecuted(in executedContext);
             var result = Wrap(reader, EventType.BatchExecuteReaderAsync, start);
-            wrapped = wrapReader;
+            readerState = result as IProfilerReaderState;
             return result;
         }
         catch (Exception ex)
@@ -168,7 +168,7 @@ internal sealed class ProfileDbDataSourceBatch : DbBatch
         }
         finally
         {
-            var finallyContext = new BatchProfilerFinallyContext(EventType.BatchExecuteReaderAsync, this, wrapped);
+            var finallyContext = new BatchProfilerFinallyContext(EventType.BatchExecuteReaderAsync, this, readerState);
             listener.BatchFinally(in finallyContext);
         }
     }

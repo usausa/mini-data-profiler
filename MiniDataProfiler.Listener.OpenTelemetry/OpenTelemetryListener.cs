@@ -30,11 +30,6 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
 
     private readonly ActivitySource activitySource;
 
-    // Activities of commands whose wrapped reader has not been disposed yet, keyed by the command
-    // (or batch) instance. AsyncLocal cannot be used here because the reader is usually disposed
-    // by the caller, outside the async context that executed the command.
-    private readonly ConditionalWeakTable<object, Activity> readerActivities = [];
-
     private static readonly AsyncLocal<AsyncLocalData?> LocalData = new();
 
     public OpenTelemetryListener(OpenTelemetryListenerOption option)
@@ -136,11 +131,9 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
             return;
         }
 
-        // The reader is still being consumed. Keep the activity open so that a single span
-        // covers the whole operation, and close it when ReaderFinished arrives.
-        if (context.ReaderWrapped && !hasError)
+        if ((context.Reader is not null) && !hasError)
         {
-            readerActivities.AddOrUpdate(context.Command, activity);
+            context.Reader.ListenerState = activity;
             return;
         }
 
@@ -209,9 +202,9 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
             return;
         }
 
-        if (context.ReaderWrapped && !hasError)
+        if ((context.Reader is not null) && !hasError)
         {
-            readerActivities.AddOrUpdate(context.Batch, activity);
+            context.Reader.ListenerState = activity;
             return;
         }
 
@@ -220,19 +213,19 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
     }
 
     public void ReaderFinished(in ProfilerReaderFinishedContext context) =>
-        RecordReaderFinished(context.Command, context.RecordsRead, context.Duration);
+        RecordReaderFinished(context.Reader, context.RecordsRead, context.Duration);
 
     public void BatchReaderFinished(in BatchProfilerReaderFinishedContext context) =>
-        RecordReaderFinished(context.Batch, context.RecordsRead, context.Duration);
+        RecordReaderFinished(context.Reader, context.RecordsRead, context.Duration);
 
-    private void RecordReaderFinished(object key, int recordsRead, TimeSpan duration)
+    private void RecordReaderFinished(IProfilerReaderState reader, int recordsRead, TimeSpan duration)
     {
-        if (!readerActivities.TryGetValue(key, out var activity))
+        if (reader.ListenerState is not Activity activity)
         {
             return;
         }
 
-        readerActivities.Remove(key);
+        reader.ListenerState = null;
 
         if (option.UseResultTag)
         {

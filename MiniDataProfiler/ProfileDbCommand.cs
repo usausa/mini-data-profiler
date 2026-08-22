@@ -207,7 +207,7 @@ internal sealed class ProfileDbCommand : DbCommand
         var executingContext = new ProfilerExecutingContext(EventType.ExecuteReader, this);
         listener.ReaderExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
-        var wrapped = false;
+        IProfilerReaderState? readerState = null;
         try
         {
             var reader = cmd.ExecuteReader(behavior);
@@ -216,7 +216,7 @@ internal sealed class ProfileDbCommand : DbCommand
             listener.ReaderExecuted(in executedContext);
 
             var result = Wrap(reader, EventType.ExecuteReader, start);
-            wrapped = wrapReader;
+            readerState = result as IProfilerReaderState;
             return result;
         }
         catch (Exception ex)
@@ -227,7 +227,7 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteReader, this, wrapped);
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteReader, this, readerState);
             listener.CommandFinally(in finallyContext);
         }
     }
@@ -237,7 +237,7 @@ internal sealed class ProfileDbCommand : DbCommand
         var executingContext = new ProfilerExecutingContext(EventType.ExecuteReaderAsync, this);
         listener.ReaderExecuting(in executingContext);
         var start = Stopwatch.GetTimestamp();
-        var wrapped = false;
+        IProfilerReaderState? readerState = null;
         try
         {
             var reader = await cmd.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
@@ -246,7 +246,7 @@ internal sealed class ProfileDbCommand : DbCommand
             listener.ReaderExecuted(in executedContext);
 
             var result = Wrap(reader, EventType.ExecuteReaderAsync, start);
-            wrapped = wrapReader;
+            readerState = result as IProfilerReaderState;
             return result;
         }
         catch (Exception ex)
@@ -257,7 +257,7 @@ internal sealed class ProfileDbCommand : DbCommand
         }
         finally
         {
-            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteReaderAsync, this, wrapped);
+            var finallyContext = new ProfilerFinallyContext(EventType.ExecuteReaderAsync, this, readerState);
             listener.CommandFinally(in finallyContext);
         }
     }

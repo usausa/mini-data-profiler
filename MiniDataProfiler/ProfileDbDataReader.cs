@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 
-internal abstract class ProfileDbDataReader : DbDataReader, IDbColumnSchemaGenerator
+internal abstract class ProfileDbDataReader : DbDataReader, IDbColumnSchemaGenerator, IProfilerReaderState
 {
     private readonly DbDataReader reader;
 
@@ -15,6 +15,8 @@ internal abstract class ProfileDbDataReader : DbDataReader, IDbColumnSchemaGener
     private int recordsRead;
 
     private bool finished;
+
+    public object? ListenerState { get; set; }
 
     protected ProfileDbDataReader(DbDataReader reader, long start)
     {
@@ -201,7 +203,7 @@ internal sealed class ProfileCommandDbDataReader : ProfileDbDataReader
 
     protected override void OnFinished(int recordsRead, TimeSpan duration)
     {
-        var context = new ProfilerReaderFinishedContext(eventType, command, recordsRead, duration);
+        var context = new ProfilerReaderFinishedContext(eventType, command, this, recordsRead, duration);
         listener.ReaderFinished(in context);
     }
 }
@@ -224,7 +226,7 @@ internal sealed class ProfileBatchDbDataReader : ProfileDbDataReader
 
     protected override void OnFinished(int recordsRead, TimeSpan duration)
     {
-        var context = new BatchProfilerReaderFinishedContext(eventType, batch, recordsRead, duration);
+        var context = new BatchProfilerReaderFinishedContext(eventType, batch, this, recordsRead, duration);
         listener.BatchReaderFinished(in context);
     }
 }
