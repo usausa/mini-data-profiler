@@ -33,6 +33,7 @@ Console.WriteLine($"Connecting to: {connectionString}");
 await using var npgsql = new NpgsqlConnection(connectionString);
 await using var connection = new ProfileDbConnection(listener, npgsql, new ProfilerOption { WrapDataReader = true });
 
+#pragma warning disable CA1031
 try
 {
     await connection.OpenAsync();
@@ -43,6 +44,7 @@ catch (Exception ex)
     Console.WriteLine("Ensure a PostgreSQL server is reachable with the connection string above.");
     return 2;
 }
+#pragma warning restore CA1031
 
 Console.WriteLine($"Connected. ServerVersion={connection.ServerVersion}, CanCreateBatch={connection.CanCreateBatch}");
 Console.WriteLine();
@@ -69,7 +71,8 @@ await using (var batch = connection.CreateBatch())
 
     verifier.Check(
         "Batch ExecuteNonQuery",
-        (affected == 3) && recording.Events.SequenceEqual([
+        (affected == 3) && recording.Events.SequenceEqual(
+        [
             nameof(IProfileListener.BatchNonQueryExecuting),
             nameof(IProfileListener.BatchNonQueryExecuted),
             nameof(IProfileListener.BatchFinally)
