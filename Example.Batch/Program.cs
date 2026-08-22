@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Globalization;
 
 using Example.Batch;
 
@@ -41,7 +42,7 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Could not connect ({ex.GetType().Name}: {ex.Message}).");
-    Console.WriteLine("Ensure a PostgreSQL server is reachable with the connection string above.");
+    Console.WriteLine(String.Create(CultureInfo.InvariantCulture, $"Ensure a PostgreSQL server is reachable with the connection string above."));
     return 2;
 }
 #pragma warning restore CA1031
@@ -147,7 +148,7 @@ cleanup.CommandText = "DROP TABLE IF EXISTS example_batch";
 await cleanup.ExecuteNonQueryAsync();
 
 Console.WriteLine();
-Console.WriteLine(verifier.AllPassed ? "RESULT: all batch scenarios passed." : "RESULT: some batch scenarios FAILED.");
+Console.WriteLine(String.Create(CultureInfo.InvariantCulture, $"RESULT: {(verifier.AllPassed ? "all batch scenarios passed." : "some batch scenarios FAILED.")}"));
 return verifier.AllPassed ? 0 : 1;
 
 static void AddInsert(DbBatch batch, string name, string type)

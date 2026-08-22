@@ -36,7 +36,7 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        // MiniDataProfiler.Listener.OpenTelemetry: one span per SQL operation.
+        // MiniDataProfiler.Listener.OpenTelemetry
         .AddMiniDataProfilerInstrumentation());
 
 if (!String.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
