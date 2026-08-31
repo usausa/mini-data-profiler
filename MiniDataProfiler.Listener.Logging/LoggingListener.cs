@@ -262,7 +262,7 @@ public sealed class LoggingListener : IProfileListener
     [SkipLocalsInit]
     private static string MakeBatchSqlText(DbBatch batch)
     {
-        var handler = new DefaultInterpolatedStringHandler(0, 0, default!, stackalloc char[512]);
+        var handler = new DefaultInterpolatedStringHandler(0, 0, default, stackalloc char[512]);
 
         var first = true;
         foreach (var cmd in batch.BatchCommands)
@@ -285,7 +285,7 @@ public sealed class LoggingListener : IProfileListener
     [SkipLocalsInit]
     private static string MakeParameterText(DbCommand command)
     {
-        var handler = new DefaultInterpolatedStringHandler(0, 0, default!, stackalloc char[256]);
+        var handler = new DefaultInterpolatedStringHandler(0, 0, default, stackalloc char[256]);
 
         var first = true;
         foreach (DbParameter parameter in command.Parameters)
