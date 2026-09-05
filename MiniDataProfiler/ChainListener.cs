@@ -12,6 +12,11 @@ public sealed class ChainListener : IProfileListener
         this.listeners = listeners;
     }
 
+    public ChainListener(IEnumerable<IProfileListener> listeners)
+    {
+        this.listeners = [.. listeners];
+    }
+
     private static void ReportError(IProfileListener listener, string method, Exception ex) =>
         Trace.TraceError("Profile listener error. type=[{0}], method=[{1}], exception=[{2}]", listener.GetType().Name, method, ex);
 
