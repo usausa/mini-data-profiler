@@ -1,6 +1,7 @@
 namespace MiniDataProfiler.Listener.Logging;
 
 using System.Data.Common;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 using Microsoft.Extensions.Logging;
@@ -310,7 +311,7 @@ public sealed class LoggingListener : IProfileListener
                     handler.AppendFormatted(sf);
                     break;
                 case IFormattable f:
-                    handler.AppendLiteral(f.ToString(null, null));
+                    handler.AppendLiteral(f.ToString(null, CultureInfo.InvariantCulture));
                     break;
                 default:
                     handler.AppendLiteral(parameter.Value.ToString() ?? string.Empty);

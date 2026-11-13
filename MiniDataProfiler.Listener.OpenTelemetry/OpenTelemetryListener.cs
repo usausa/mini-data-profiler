@@ -2,6 +2,7 @@ namespace MiniDataProfiler.Listener.OpenTelemetry;
 
 using System.Data.Common;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 public sealed class OpenTelemetryListenerOption
@@ -333,7 +334,7 @@ public sealed class OpenTelemetryListener : IProfileListener, IDisposable
                     handler.AppendFormatted(sf);
                     break;
                 case IFormattable f:
-                    handler.AppendLiteral(f.ToString(null, null));
+                    handler.AppendLiteral(f.ToString(null, CultureInfo.InvariantCulture));
                     break;
                 default:
                     handler.AppendLiteral(parameter.Value.ToString() ?? string.Empty);
